@@ -1,0 +1,33 @@
+name: OMOP QC and screening
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  screen:
+    name: OMOP unit tests and fixtures
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: make check-image-tags SCREENS=omop
+      - run: make check-shared
+      - run: make py-test SCREENS=omop
+
+  nextflow:
+    name: OMOP workflow tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - run: make tools
+      - run: make lint
+      - run: make stub SCREENS=omop
+      - run: make nf-test SCREENS=omop

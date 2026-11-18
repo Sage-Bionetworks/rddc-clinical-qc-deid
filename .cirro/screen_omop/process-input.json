@@ -1,0 +1,5 @@
+{
+  "provider_policy": "$.dataset.params.provider_policy",
+  "research_id_pattern": "$.dataset.params.research_id_pattern",
+  "outdir": "$.dataset.dataPath"
+}
