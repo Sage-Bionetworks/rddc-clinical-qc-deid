@@ -1,0 +1,12 @@
+.nextflow*
+work/
+results/
+.venv/
+__pycache__/
+*.pyc
+.env
+.tools/
+.pytest_cache/
+*.egg-info/
+build/
+dist/
