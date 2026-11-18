@@ -1,0 +1,9 @@
+location_id,address_1,address_2,city,state,zip,county,location_source_value,country_concept_id,country_source_value,latitude,longitude
+1,858 O'Conner Key Apt 49,,North Attleborough,MA,00000,,"858 O'Conner Key Apt 49, North Attleborough, MA, 0",,US,41.97334821610922,-71.3685476796784
+2,869 Parisian Gateway Apt 93,,Weymouth,MA,02188,,"869 Parisian Gateway Apt 93, Weymouth, MA, 02188",,US,42.16549793806155,-70.91794847236815
+3,803 Rempel Dale Suite 51,,Newton,MA,02472,,"803 Rempel Dale Suite 51, Newton, MA, 02472",,US,42.36675126612122,-71.15078466039529
+4,337 Cummings Park,,Burlington,MA,01803,,"337 Cummings Park, Burlington, MA, 01803",,US,42.55255593853971,-71.20668963599915
+5,371 Kovacek Grove Apt 31,,Salem,MA,01907,,"371 Kovacek Grove Apt 31, Salem, MA, 01907",,US,42.55487280323769,-70.86634504110606
+6,709 Cole Parade,,Chelsea,MA,02150,,"709 Cole Parade, Chelsea, MA, 02150",,US,42.406483833857976,-71.03343803003571
+7,808 Steuber Wynd,,Newton,MA,02465,,"808 Steuber Wynd, Newton, MA, 02465",,US,42.31829064223566,-71.25451939262949
+8,267 Welch Camp Unit 50,,Salem,MA,01970,,"267 Welch Camp Unit 50, Salem, MA, 01970",,US,42.47595924392039,-70.89988543983544

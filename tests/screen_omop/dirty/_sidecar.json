@@ -1,0 +1,532 @@
+{
+  "@context": {
+    "@language": "en",
+    "@vocab": "https://schema.org/",
+    "arrayShape": "cr:arrayShape",
+    "citeAs": "cr:citeAs",
+    "column": "cr:column",
+    "conformsTo": "dct:conformsTo",
+    "containedIn": "cr:containedIn",
+    "cr": "http://mlcommons.org/croissant/",
+    "rai": "http://mlcommons.org/croissant/RAI/",
+    "data": {
+      "@id": "cr:data",
+      "@type": "@json"
+    },
+    "dataType": {
+      "@id": "cr:dataType",
+      "@type": "@vocab"
+    },
+    "dct": "http://purl.org/dc/terms/",
+    "description": {
+      "@container": "@language"
+    },
+    "equivalentProperty": "cr:equivalentProperty",
+    "examples": {
+      "@id": "cr:examples",
+      "@type": "@json"
+    },
+    "extract": "cr:extract",
+    "field": "cr:field",
+    "fileProperty": "cr:fileProperty",
+    "fileObject": "cr:fileObject",
+    "fileSet": "cr:fileSet",
+    "format": "cr:format",
+    "includes": "cr:includes",
+    "isArray": "cr:isArray",
+    "isLiveDataset": "cr:isLiveDataset",
+    "jsonPath": "cr:jsonPath",
+    "key": "cr:key",
+    "md5": "cr:md5",
+    "name": {
+      "@container": "@language"
+    },
+    "parentField": "cr:parentField",
+    "path": "cr:path",
+    "recordSet": "cr:recordSet",
+    "references": "cr:references",
+    "regex": "cr:regex",
+    "repeated": "cr:repeated",
+    "replace": "cr:replace",
+    "samplingRate": "cr:samplingRate",
+    "sc": "https://schema.org/",
+    "separator": "cr:separator",
+    "source": "cr:source",
+    "subField": "cr:subField",
+    "transform": "cr:transform",
+    "rddc": "https://w3id.org/rddc/sidecar/",
+    "prov": "http://www.w3.org/ns/prov#",
+    "additionalType": {
+      "@id": "sc:additionalType",
+      "@type": "@id"
+    },
+    "assay": "rddc:assay",
+    "batchId": "rddc:batchId",
+    "bucket": "rddc:bucket",
+    "bundleType": "rddc:bundleType",
+    "cdmEtlReference": "rddc:cdmEtlReference",
+    "cdmHolder": "rddc:cdmHolder",
+    "cdmReleaseDate": "rddc:cdmReleaseDate",
+    "cdmSource": "rddc:cdmSource",
+    "cdmSourceAbbreviation": "rddc:cdmSourceAbbreviation",
+    "cdmSourceName": "rddc:cdmSourceName",
+    "cdmTable": "rddc:cdmTable",
+    "cdmVersion": "rddc:cdmVersion",
+    "compression": "rddc:compression",
+    "confidence": "rddc:confidence",
+    "confirmed": "rddc:confirmed",
+    "consentRef": "rddc:consentRef",
+    "containsBiometricIdentifiers": "rddc:containsBiometricIdentifiers",
+    "containsDates": "rddc:containsDates",
+    "containsFreeText": "rddc:containsFreeText",
+    "containsZipCodes": "rddc:containsZipCodes",
+    "contributorId": "rddc:contributorId",
+    "deliveryRole": "rddc:deliveryRole",
+    "directIdentifiersRemoved": "rddc:directIdentifiersRemoved",
+    "excludes": "cr:excludes",
+    "exportTime": "rddc:exportTime",
+    "fieldPath": "rddc:fieldPath",
+    "idSystem": "rddc:idSystem",
+    "identifierSystemUri": "rddc:identifierSystemUri",
+    "indexOf": "rddc:indexOf",
+    "interaction": "rddc:interaction",
+    "issuedAt": "rddc:issuedAt",
+    "issuedBy": "rddc:issuedBy",
+    "method": "rddc:method",
+    "modalities": "rddc:modalities",
+    "modality": "rddc:modality",
+    "notes": "rddc:notes",
+    "noticeRef": "rddc:noticeRef",
+    "origin": "rddc:origin",
+    "pairedWith": "rddc:pairedWith",
+    "platform": "rddc:platform",
+    "prefixPattern": "rddc:prefixPattern",
+    "processingHints": "rddc:processingHints",
+    "recordCount": "rddc:recordCount",
+    "referenceGenome": "rddc:referenceGenome",
+    "region": "rddc:region",
+    "registerVersion": "rddc:registerVersion",
+    "resourceType": "rddc:resourceType",
+    "sensitivity": "rddc:sensitivity",
+    "sourceId": "rddc:sourceId",
+    "sourceReleaseDate": "rddc:sourceReleaseDate",
+    "subjectCount": "rddc:subjectCount",
+    "subjectId": "rddc:subjectId",
+    "subjectIds": "rddc:subjectIds",
+    "subjects": "rddc:subjects",
+    "synthetic": "rddc:synthetic",
+    "tableName": "rddc:tableName",
+    "templateIds": "rddc:templateIds",
+    "valueOrigins": "rddc:valueOrigins",
+    "vocabularyVersion": "rddc:vocabularyVersion",
+    "wasAttributedTo": "prov:wasAttributedTo",
+    "wasDerivedFrom": "prov:wasDerivedFrom"
+  },
+  "@id": "urn:uuid:5e1d0c2a-0000-4000-8000-0000000000c2",
+  "@type": "sc:Dataset",
+  "conformsTo": [
+    "http://mlcommons.org/croissant/1.1",
+    "https://w3id.org/rddc/sidecar/0.1.0"
+  ],
+  "name": "src-synthea-01/2026-11-synthea-omop-dirty",
+  "url": "s3://rddc-deposit-test/src-synthea-01/2026-11-synthea-omop-dirty/",
+  "dateCreated": "2026-11-17T00:00:00Z",
+  "wasAttributedTo": {
+    "@type": "sc:SoftwareApplication",
+    "name": "rddc-sidecar",
+    "softwareVersion": "0.1.0"
+  },
+  "contributorId": "test-site",
+  "sourceId": "src-synthea-01",
+  "batchId": "2026-11-synthea-omop-dirty",
+  "interaction": "add",
+  "sensitivity": {
+    "directIdentifiersRemoved": true,
+    "synthetic": true,
+    "containsDates": true,
+    "containsZipCodes": true
+  },
+  "subjects": [
+    {
+      "subjectId": "592ad309-7d98-4a5d-dbcb-2a5c6379c99e",
+      "idSystem": "omop_person_source_value"
+    },
+    {
+      "subjectId": "5a1715ff-f3e1-47a1-ab36-743ba8fd4194",
+      "idSystem": "omop_person_source_value"
+    },
+    {
+      "subjectId": "6fc9c194-c31f-04d6-7940-dbb11dd2eeb1",
+      "idSystem": "omop_person_source_value"
+    },
+    {
+      "subjectId": "b54b1904-91b3-ca5d-7d0b-9e397a493981",
+      "idSystem": "omop_person_source_value"
+    },
+    {
+      "subjectId": "bb0f1798-a377-3418-41f5-a58c8c6ed14d",
+      "idSystem": "omop_person_source_value"
+    },
+    {
+      "subjectId": "bfc9945a-0277-0b39-6d0f-cea74f9dbeef",
+      "idSystem": "omop_person_source_value"
+    },
+    {
+      "subjectId": "e5b3f440-be1a-4792-e16f-1068bca6b47f",
+      "idSystem": "omop_person_source_value"
+    },
+    {
+      "subjectId": "ef2d5ebf-f455-9971-3022-dcf9569a5cca",
+      "idSystem": "omop_person_source_value"
+    }
+  ],
+  "distribution": [
+    {
+      "@id": "urn:uuid:37796871-faaa-5c05-80e6-b5299a700410",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:OmopTableFile",
+      "name": "omop/care_site.csv",
+      "contentUrl": "omop/care_site.csv",
+      "contentSize": "2131 B",
+      "encodingFormat": "text/csv",
+      "sha256": "2d3ae020a5761cc8b44908b6896e471a2a8360f9001226eab41febf6d45435fb",
+      "md5": "d5c8f4af94f527440444ceb44ffa5b4e",
+      "modality": "clinical_omop",
+      "cdmTable": "care_site",
+      "recordCount": 27
+    },
+    {
+      "@id": "urn:uuid:fae15ce0-c7fd-5eef-8e92-ee411e675720",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:OmopTableFile",
+      "name": "omop/cdm_source.csv",
+      "contentUrl": "omop/cdm_source.csv",
+      "contentSize": "456 B",
+      "encodingFormat": "text/csv",
+      "sha256": "0a161a96957184abfc4678e2adbf702f7598014b10b0f73e0e46fbe7aa330b46",
+      "md5": "d7a722d23ca16f2662cb88cbfc49c02a",
+      "modality": "clinical_omop",
+      "cdmTable": "cdm_source",
+      "recordCount": 1
+    },
+    {
+      "@id": "urn:uuid:77355408-344e-5f88-b7fc-616b6cf83265",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:OmopTableFile",
+      "name": "omop/condition_era.csv",
+      "contentUrl": "omop/condition_era.csv",
+      "contentSize": "554 B",
+      "encodingFormat": "text/csv",
+      "sha256": "5b273283e1057fbed30f6339bf5bc7ec9c8c9bf76531cff9528274b25f6d99c7",
+      "md5": "41019cf6ea5674892d1f4cb4f74c3f9f",
+      "modality": "clinical_omop",
+      "cdmTable": "condition_era",
+      "recordCount": 11
+    },
+    {
+      "@id": "urn:uuid:afa382a8-3f67-5c21-b134-d3d3b601e112",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:OmopTableFile",
+      "name": "omop/condition_occurrence.csv",
+      "contentUrl": "omop/condition_occurrence.csv",
+      "contentSize": "14486 B",
+      "encodingFormat": "text/csv",
+      "sha256": "441790b584139d3d138237cf1c315ee1202aa13be1c2ee848b3483c6e6de776b",
+      "md5": "eca05193ef7a7d3b2b793ec464d95fd6",
+      "modality": "clinical_omop",
+      "cdmTable": "condition_occurrence",
+      "recordCount": 148
+    },
+    {
+      "@id": "urn:uuid:90b8dd84-d767-5dbf-a0f5-d9f414194fce",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:OmopTableFile",
+      "name": "omop/death.csv",
+      "contentUrl": "omop/death.csv",
+      "contentSize": "202 B",
+      "encodingFormat": "text/csv",
+      "sha256": "439b375e79f2dd299604fa7ac21c029de7e3f99aa4b080e5809efd570e3f7dca",
+      "md5": "461645d7eea4c25bd32717ee3ec028d1",
+      "modality": "clinical_omop",
+      "cdmTable": "death",
+      "recordCount": 2
+    },
+    {
+      "@id": "urn:uuid:bbbfc051-b5b1-5f9a-8945-60d53b604e5b",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:OmopTableFile",
+      "name": "omop/device_exposure.csv",
+      "contentUrl": "omop/device_exposure.csv",
+      "contentSize": "2652 B",
+      "encodingFormat": "text/csv",
+      "sha256": "4abe39db2bbdd93f4a534dca39e72698f8f40755092356621c2baadbe54d1f3b",
+      "md5": "a0b1e0cde7e2cc994ccffa28af2a6976",
+      "modality": "clinical_omop",
+      "cdmTable": "device_exposure",
+      "recordCount": 25
+    },
+    {
+      "@id": "urn:uuid:f5c48e87-a163-5451-89de-939e7b9936d9",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:OmopTableFile",
+      "name": "omop/drug_era.csv",
+      "contentUrl": "omop/drug_era.csv",
+      "contentSize": "3004 B",
+      "encodingFormat": "text/csv",
+      "sha256": "6cbdc7ed4724369a41fbfc85258fa9fee541824fddb278940b1e3b149782dd91",
+      "md5": "bc7eb8a2673d87ddde6341a65eda01e0",
+      "modality": "clinical_omop",
+      "cdmTable": "drug_era",
+      "recordCount": 69
+    },
+    {
+      "@id": "urn:uuid:9e2ea67d-a772-538f-8fb4-6ed0a4f988d8",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:OmopTableFile",
+      "name": "omop/drug_exposure.csv",
+      "contentUrl": "omop/drug_exposure.csv",
+      "contentSize": "42472 B",
+      "encodingFormat": "text/csv",
+      "sha256": "8da39b90438140a0339b4482dd323ae51784be01f3d53f602e20cf41bedd9535",
+      "md5": "af8fc2be5bfa71c8c41475ee95ec4986",
+      "modality": "clinical_omop",
+      "cdmTable": "drug_exposure",
+      "recordCount": 363
+    },
+    {
+      "@id": "urn:uuid:7f592f87-cf7e-53a0-ba67-fc6eed8428e5",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:OmopTableFile",
+      "name": "omop/location.csv",
+      "contentUrl": "omop/location.csv",
+      "contentSize": "1173 B",
+      "encodingFormat": "text/csv",
+      "sha256": "b8af1db5e0755c867e98ecf996dfdaded711dc8436208a9804e03b6b4663650c",
+      "md5": "253d191b6aa58e181288e3a5d00a8f79",
+      "modality": "clinical_omop",
+      "cdmTable": "location",
+      "recordCount": 8
+    },
+    {
+      "@id": "urn:uuid:0d05b836-352f-553c-966f-30892405e1d5",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:OmopTableFile",
+      "name": "omop/measurement.parquet",
+      "contentUrl": "omop/measurement.parquet",
+      "contentSize": "40465 B",
+      "encodingFormat": "application/vnd.apache.parquet",
+      "sha256": "8077259acd7891f316be82d2cde01e57424d9e985602da30a1d622794e782bda",
+      "md5": "3bfb9d659b723c028bbb10da67df38a6",
+      "modality": "clinical_omop",
+      "cdmTable": "measurement",
+      "recordCount": 1292
+    },
+    {
+      "@id": "urn:uuid:828d32d4-b94b-507a-a31d-86da6fbbab4b",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:OmopTableFile",
+      "name": "omop/observation.csv.gz",
+      "contentUrl": "omop/observation.csv.gz",
+      "contentSize": "8660 B",
+      "encodingFormat": "text/csv",
+      "sha256": "344d046472d7207279fdb1c9962f6d6b583e6aa6cfc0d5245486dd0bc9437944",
+      "md5": "6d12f95bc906718ca79f15c5ef1248ce",
+      "compression": "gzip",
+      "modality": "clinical_omop",
+      "cdmTable": "observation",
+      "recordCount": 759
+    },
+    {
+      "@id": "urn:uuid:0a15f619-931d-5824-a025-9b6279e9c855",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:OmopTableFile",
+      "name": "omop/observation_period.csv",
+      "contentUrl": "omop/observation_period.csv",
+      "contentSize": "369 B",
+      "encodingFormat": "text/csv",
+      "sha256": "57aece5ebde7f84f5e3d71559a3414b3b695be5746d185a480dc65d06dce41be",
+      "md5": "3fa59d64ce7047d6827239c5d6c2cd26",
+      "modality": "clinical_omop",
+      "cdmTable": "observation_period",
+      "recordCount": 8
+    },
+    {
+      "@id": "urn:uuid:c60af3de-768c-5919-8598-ba5ca2cead1c",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:OmopTableFile",
+      "name": "omop/person.csv",
+      "contentUrl": "omop/person.csv",
+      "contentSize": "1468 B",
+      "encodingFormat": "text/csv",
+      "sha256": "f843ecf81bac452dac264c4319b0c60ea583f0ac6f331a51243c3187d999736b",
+      "md5": "687cb66f26ef8d05fd22803fa00ace4c",
+      "modality": "clinical_omop",
+      "cdmTable": "person",
+      "subjectIds": [
+        "592ad309-7d98-4a5d-dbcb-2a5c6379c99e",
+        "5a1715ff-f3e1-47a1-ab36-743ba8fd4194",
+        "6fc9c194-c31f-04d6-7940-dbb11dd2eeb1",
+        "b54b1904-91b3-ca5d-7d0b-9e397a493981",
+        "bb0f1798-a377-3418-41f5-a58c8c6ed14d",
+        "bfc9945a-0277-0b39-6d0f-cea74f9dbeef",
+        "e5b3f440-be1a-4792-e16f-1068bca6b47f",
+        "ef2d5ebf-f455-9971-3022-dcf9569a5cca"
+      ],
+      "recordCount": 8
+    },
+    {
+      "@id": "urn:uuid:10b77d16-8377-5a26-82cc-d05c4e63af8c",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:OmopTableFile",
+      "name": "omop/procedure_occurrence.csv",
+      "contentUrl": "omop/procedure_occurrence.csv",
+      "contentSize": "67356 B",
+      "encodingFormat": "text/csv",
+      "sha256": "7216edbb006322cad978479c5801b4e3f96bc85853564a6deebf0ee35c887474",
+      "md5": "819000bf030e009bbb4390a319b599da",
+      "modality": "clinical_omop",
+      "cdmTable": "procedure_occurrence",
+      "recordCount": 667
+    },
+    {
+      "@id": "urn:uuid:e29b78c9-5d62-5850-ac80-266f0edd89f9",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:OmopTableFile",
+      "name": "omop/provider.csv",
+      "contentUrl": "omop/provider.csv",
+      "contentSize": "2652 B",
+      "encodingFormat": "text/csv",
+      "sha256": "db13bfca416762f04619b3ab733ec26b755f1a65949469353b1155e6afd24399",
+      "md5": "b06745e069d4d64396d2e6645999e2f2",
+      "modality": "clinical_omop",
+      "cdmTable": "provider",
+      "recordCount": 27
+    },
+    {
+      "@id": "urn:uuid:1a81913a-a787-5861-be7f-8ed91c61e980",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:OmopTableFile",
+      "name": "omop/visit_occurrence.csv",
+      "contentUrl": "omop/visit_occurrence.csv",
+      "contentSize": "38401 B",
+      "encodingFormat": "text/csv",
+      "sha256": "4642ebcdc6be23c61105e357059fc47879bbead39d7560dbf446de3e66488837",
+      "md5": "721f2493034e0c270d927bde4eef89d4",
+      "modality": "clinical_omop",
+      "cdmTable": "visit_occurrence",
+      "recordCount": 393
+    },
+    {
+      "@id": "omop_cdm_instance",
+      "@type": "cr:FileSet",
+      "additionalType": "rddc:OmopCdmInstance",
+      "name": "OMOP CDM instance (omop/)",
+      "includes": [
+        "omop/*.csv",
+        "omop/*.csv.gz",
+        "omop/*.parquet"
+      ],
+      "hasPart": [
+        {
+          "@id": "urn:uuid:37796871-faaa-5c05-80e6-b5299a700410"
+        },
+        {
+          "@id": "urn:uuid:fae15ce0-c7fd-5eef-8e92-ee411e675720"
+        },
+        {
+          "@id": "urn:uuid:77355408-344e-5f88-b7fc-616b6cf83265"
+        },
+        {
+          "@id": "urn:uuid:afa382a8-3f67-5c21-b134-d3d3b601e112"
+        },
+        {
+          "@id": "urn:uuid:90b8dd84-d767-5dbf-a0f5-d9f414194fce"
+        },
+        {
+          "@id": "urn:uuid:bbbfc051-b5b1-5f9a-8945-60d53b604e5b"
+        },
+        {
+          "@id": "urn:uuid:f5c48e87-a163-5451-89de-939e7b9936d9"
+        },
+        {
+          "@id": "urn:uuid:9e2ea67d-a772-538f-8fb4-6ed0a4f988d8"
+        },
+        {
+          "@id": "urn:uuid:7f592f87-cf7e-53a0-ba67-fc6eed8428e5"
+        },
+        {
+          "@id": "urn:uuid:0d05b836-352f-553c-966f-30892405e1d5"
+        },
+        {
+          "@id": "urn:uuid:828d32d4-b94b-507a-a31d-86da6fbbab4b"
+        },
+        {
+          "@id": "urn:uuid:0a15f619-931d-5824-a025-9b6279e9c855"
+        },
+        {
+          "@id": "urn:uuid:c60af3de-768c-5919-8598-ba5ca2cead1c"
+        },
+        {
+          "@id": "urn:uuid:10b77d16-8377-5a26-82cc-d05c4e63af8c"
+        },
+        {
+          "@id": "urn:uuid:e29b78c9-5d62-5850-ac80-266f0edd89f9"
+        },
+        {
+          "@id": "urn:uuid:1a81913a-a787-5861-be7f-8ed91c61e980"
+        }
+      ],
+      "conformsTo": [
+        "https://ohdsi.github.io/CommonDataModel/cdm54.html"
+      ],
+      "vocabularyVersion": "mini-test 2026-11",
+      "cdmSource": {
+        "cdmSourceName": "src-synthea-01/2026-11-synthea-p6",
+        "cdmSourceAbbreviation": "src-synthea-01",
+        "cdmHolder": "Sage Bionetworks",
+        "cdmEtlReference": "rddc-fhir-to-omop",
+        "sourceReleaseDate": "2026-11-11",
+        "cdmReleaseDate": "2026-11-18",
+        "cdmVersion": "5.4"
+      },
+      "subjectCount": 8
+    }
+  ],
+  "valueOrigins": [
+    {
+      "fieldPath": "/contributorId",
+      "origin": "declared",
+      "method": "option"
+    },
+    {
+      "fieldPath": "/sourceId",
+      "origin": "declared",
+      "method": "option"
+    },
+    {
+      "fieldPath": "/url",
+      "origin": "declared",
+      "method": "option"
+    },
+    {
+      "fieldPath": "/sensitivity/containsDates",
+      "origin": "detected",
+      "method": "content"
+    },
+    {
+      "fieldPath": "/sensitivity/containsZipCodes",
+      "origin": "detected",
+      "method": "content"
+    },
+    {
+      "fieldPath": "/sensitivity/directIdentifiersRemoved",
+      "origin": "declared",
+      "method": "option.attest"
+    },
+    {
+      "fieldPath": "/sensitivity/synthetic",
+      "origin": "declared",
+      "method": "option.synthetic"
+    }
+  ]
+}

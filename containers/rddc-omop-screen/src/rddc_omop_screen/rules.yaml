@@ -1,0 +1,96 @@
+# Identifier screen rules for OMOP CDM 5.4 (rddc-source-map/qc_deid_inventory.md, section 4.1).
+#
+# Actions, and the data property each one reports to the orchestrator (as in screen_fhir):
+#   stop       direct identifier                     -> direct_identifiers (quarantines the batch)
+#   provider   clinician or site identity            -> per --provider-policy: stop, or review
+#   dates      full date (inventory for release)     -> dates
+#   zip_codes  ZIP code (inventory for release)      -> zip_codes
+#   free_text  prose to de-identify                  -> free_text
+#   review     a finding for a curator, no property
+#
+# A column rule matches every non-empty value in the column.
+version: 0.1.0
+
+# Columns by table. Tables not listed get only the generic checks below.
+columns:
+  person:
+    dates: [birth_datetime, day_of_birth]
+  location:
+    stop: [address_1, address_2, city, county, latitude, longitude, location_source_value]
+    zip_codes: [zip]
+  provider:
+    provider: [provider_name, npi, dea, provider_source_value, year_of_birth]
+  care_site:
+    # Institution names can identify a small cohort; a decision per source (inventory gap 9).
+    provider: [care_site_name, care_site_source_value]
+  device_exposure:
+    # The production identifier (lot, serial, dates) is Safe Harbor M; the device
+    # identifier alone is allowed, see udi below.
+    stop: [production_id]
+  specimen:
+    stop: [specimen_source_id]   # lab accession number
+  payer_plan_period:
+    stop: [family_source_value]
+  note:
+    # Left to deid_omop_notes: reported as free text, not pattern-screened.
+    free_text: [note_text, note_title, note_source_value]
+  note_nlp:
+    free_text: [snippet, lexical_variant, term_modifiers]
+
+# unique_device_id may carry only the device identifier: a GTIN (8 to 14 digits), with or
+# without the GS1 "(01)" application identifier. Anything more (production identifiers such
+# as "(21)" serial or "(10)" lot) stops.
+udi:
+  table: device_exposure
+  column: unique_device_id
+  allowed: '^(\(01\))?\d{8,14}$'
+
+# person_source_value must be a Research ID or a surrogate with no identifying meaning.
+# With --research-id-pattern, a value that does not match it stops; without it, the
+# column is reported once for review.
+source_key:
+  table: person
+  column: person_source_value
+
+# fact_relationship rows that link two persons (domain concept 56, Person) describe family
+# structure, a quasi-identifier: reported for review (expert determination).
+person_links:
+  table: fact_relationship
+  domain_columns: [domain_concept_id_1, domain_concept_id_2]
+  person_domain: "56"
+
+# Full dates: every *_date and *_datetime column, and the columns under columns.<t>.dates.
+dates:
+  action: dates
+  suffixes: [_date, _datetime]
+
+# Allow lists (--allow-list, TSV table/column/value, built from a source's first batches
+# and reviewed by a curator): a value off the list in these columns is reported for review.
+# Columns with a rule of their own (columns above, source_key) are not allow-list checked.
+allow_list:
+  action: review
+  suffixes: [_source_value]
+  also: [person.gender_source_value, person.race_source_value, person.ethnicity_source_value]
+
+# Pattern detectors (SSN, phone, email, URL, IPv4, labelled MRN) run on every string value
+# outside the free_text columns above. A value longer than long_string is prose: free_text.
+patterns:
+  action: stop
+  url_hosts: [www.w3.org, hl7.org, terminology.hl7.org, loinc.org, snomed.info, unitsofmeasure.org,
+              www.nlm.nih.gov, ohdsi.github.io]
+long_string:
+  length: 80
+  action: free_text
+
+# Not screened: CDM metadata and vocabulary tables carry no person data.
+skip_tables: [cdm_source, metadata, concept, vocabulary, domain, concept_class, concept_relationship,
+              relationship, concept_synonym, concept_ancestor, source_to_concept_map, drug_strength]
+
+# CDM 5.4 tables; any other cdmTable is reported for review.
+cdm_tables: [person, observation_period, visit_occurrence, visit_detail, condition_occurrence,
+             drug_exposure, procedure_occurrence, device_exposure, measurement, observation, death,
+             note, note_nlp, specimen, fact_relationship, location, care_site, provider,
+             payer_plan_period, cost, drug_era, dose_era, condition_era, episode, episode_event,
+             cohort, cohort_definition, cdm_source, metadata, concept, vocabulary, domain,
+             concept_class, concept_relationship, relationship, concept_synonym, concept_ancestor,
+             source_to_concept_map, drug_strength]

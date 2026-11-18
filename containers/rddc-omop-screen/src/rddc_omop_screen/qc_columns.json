@@ -1,0 +1,260 @@
+{
+  "person": [
+    "person_id",
+    "gender_concept_id",
+    "year_of_birth",
+    "race_concept_id",
+    "ethnicity_concept_id"
+  ],
+  "observation_period": [
+    "observation_period_id",
+    "person_id",
+    "observation_period_start_date",
+    "observation_period_end_date",
+    "period_type_concept_id"
+  ],
+  "visit_occurrence": [
+    "visit_occurrence_id",
+    "person_id",
+    "visit_concept_id",
+    "visit_start_date",
+    "visit_end_date",
+    "visit_type_concept_id"
+  ],
+  "visit_detail": [
+    "visit_detail_id",
+    "person_id",
+    "visit_detail_concept_id",
+    "visit_detail_start_date",
+    "visit_detail_end_date",
+    "visit_detail_type_concept_id",
+    "visit_occurrence_id"
+  ],
+  "condition_occurrence": [
+    "condition_occurrence_id",
+    "person_id",
+    "condition_concept_id",
+    "condition_start_date",
+    "condition_type_concept_id"
+  ],
+  "drug_exposure": [
+    "drug_exposure_id",
+    "person_id",
+    "drug_concept_id",
+    "drug_exposure_start_date",
+    "drug_exposure_end_date",
+    "drug_type_concept_id"
+  ],
+  "procedure_occurrence": [
+    "procedure_occurrence_id",
+    "person_id",
+    "procedure_concept_id",
+    "procedure_date",
+    "procedure_type_concept_id"
+  ],
+  "device_exposure": [
+    "device_exposure_id",
+    "person_id",
+    "device_concept_id",
+    "device_exposure_start_date",
+    "device_type_concept_id"
+  ],
+  "measurement": [
+    "measurement_id",
+    "person_id",
+    "measurement_concept_id",
+    "measurement_date",
+    "measurement_type_concept_id"
+  ],
+  "observation": [
+    "observation_id",
+    "person_id",
+    "observation_concept_id",
+    "observation_date",
+    "observation_type_concept_id"
+  ],
+  "death": [
+    "person_id",
+    "death_date"
+  ],
+  "note": [
+    "note_id",
+    "person_id",
+    "note_date",
+    "note_type_concept_id",
+    "note_class_concept_id",
+    "note_text",
+    "encoding_concept_id",
+    "language_concept_id"
+  ],
+  "note_nlp": [
+    "note_nlp_id",
+    "note_id",
+    "lexical_variant",
+    "nlp_date"
+  ],
+  "specimen": [
+    "specimen_id",
+    "person_id",
+    "specimen_concept_id",
+    "specimen_type_concept_id",
+    "specimen_date"
+  ],
+  "fact_relationship": [
+    "domain_concept_id_1",
+    "fact_id_1",
+    "domain_concept_id_2",
+    "fact_id_2",
+    "relationship_concept_id"
+  ],
+  "location": [
+    "location_id"
+  ],
+  "care_site": [
+    "care_site_id"
+  ],
+  "provider": [
+    "provider_id"
+  ],
+  "payer_plan_period": [
+    "payer_plan_period_id",
+    "person_id",
+    "payer_plan_period_start_date",
+    "payer_plan_period_end_date"
+  ],
+  "cost": [
+    "cost_id",
+    "cost_event_id",
+    "cost_domain_id",
+    "cost_type_concept_id"
+  ],
+  "drug_era": [
+    "drug_era_id",
+    "person_id",
+    "drug_concept_id",
+    "drug_era_start_date",
+    "drug_era_end_date"
+  ],
+  "dose_era": [
+    "dose_era_id",
+    "person_id",
+    "drug_concept_id",
+    "unit_concept_id",
+    "dose_value",
+    "dose_era_start_date",
+    "dose_era_end_date"
+  ],
+  "condition_era": [
+    "condition_era_id",
+    "person_id",
+    "condition_concept_id",
+    "condition_era_start_date",
+    "condition_era_end_date"
+  ],
+  "episode": [
+    "episode_id",
+    "person_id",
+    "episode_concept_id",
+    "episode_start_date",
+    "episode_object_concept_id",
+    "episode_type_concept_id"
+  ],
+  "episode_event": [
+    "episode_id",
+    "event_id",
+    "episode_event_field_concept_id"
+  ],
+  "metadata": [
+    "metadata_id",
+    "metadata_concept_id",
+    "metadata_type_concept_id",
+    "name"
+  ],
+  "cdm_source": [
+    "cdm_source_name",
+    "cdm_source_abbreviation",
+    "cdm_holder",
+    "source_release_date",
+    "cdm_release_date",
+    "cdm_version_concept_id",
+    "vocabulary_version"
+  ],
+  "concept": [
+    "concept_id",
+    "concept_name",
+    "domain_id",
+    "vocabulary_id",
+    "concept_class_id",
+    "concept_code",
+    "valid_start_date",
+    "valid_end_date"
+  ],
+  "vocabulary": [
+    "vocabulary_id",
+    "vocabulary_name",
+    "vocabulary_concept_id"
+  ],
+  "domain": [
+    "domain_id",
+    "domain_name",
+    "domain_concept_id"
+  ],
+  "concept_class": [
+    "concept_class_id",
+    "concept_class_name",
+    "concept_class_concept_id"
+  ],
+  "concept_relationship": [
+    "concept_id_1",
+    "concept_id_2",
+    "relationship_id",
+    "valid_start_date",
+    "valid_end_date"
+  ],
+  "relationship": [
+    "relationship_id",
+    "relationship_name",
+    "is_hierarchical",
+    "defines_ancestry",
+    "reverse_relationship_id",
+    "relationship_concept_id"
+  ],
+  "concept_synonym": [
+    "concept_id",
+    "concept_synonym_name",
+    "language_concept_id"
+  ],
+  "concept_ancestor": [
+    "ancestor_concept_id",
+    "descendant_concept_id",
+    "min_levels_of_separation",
+    "max_levels_of_separation"
+  ],
+  "source_to_concept_map": [
+    "source_code",
+    "source_concept_id",
+    "source_vocabulary_id",
+    "target_concept_id",
+    "target_vocabulary_id",
+    "valid_start_date",
+    "valid_end_date"
+  ],
+  "drug_strength": [
+    "drug_concept_id",
+    "ingredient_concept_id",
+    "valid_start_date",
+    "valid_end_date"
+  ],
+  "cohort": [
+    "cohort_definition_id",
+    "subject_id",
+    "cohort_start_date",
+    "cohort_end_date"
+  ],
+  "cohort_definition": [
+    "cohort_definition_id",
+    "cohort_definition_name",
+    "definition_type_concept_id",
+    "subject_concept_id"
+  ]
+}

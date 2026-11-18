@@ -1,0 +1,9 @@
+location_id,address_1,address_2,city,state,zip,county,location_source_value,country_concept_id,country_source_value,latitude,longitude
+1,,,,MA,00000,,,,US,,
+2,,,,MA,02188,,,,US,,
+3,,,,MA,02472,,,,US,,
+4,,,,MA,01803,,,,US,,
+5,,,,MA,01907,,,,US,,
+6,,,,MA,02150,,,,US,,
+7,,,,MA,02465,,,,US,,
+8,,,,MA,01970,,,,US,,

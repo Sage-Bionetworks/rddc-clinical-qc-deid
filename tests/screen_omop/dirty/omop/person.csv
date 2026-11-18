@@ -1,0 +1,9 @@
+person_id,gender_concept_id,year_of_birth,month_of_birth,day_of_birth,birth_datetime,race_concept_id,ethnicity_concept_id,location_id,provider_id,care_site_id,person_source_value,gender_source_value,gender_source_concept_id,race_source_value,race_source_concept_id,ethnicity_source_value,ethnicity_source_concept_id
+1,8532,2003,11,6,2003-11-06 00:00:00,8527,38003564,1,,,592ad309-7d98-4a5d-dbcb-2a5c6379c99e,female,,2106-3 White,,2186-5 Not Hispanic or Latino,
+2,8507,2002,1,8,2002-01-08 00:00:00,8515,38003564,2,,,5a1715ff-f3e1-47a1-ab36-743ba8fd4194,male,,2028-9 Asian,,2186-5 Not Hispanic or Latino,
+3,8532,1968,6,12,1968-06-12 00:00:00,8527,38003564,3,,,6fc9c194-c31f-04d6-7940-dbb11dd2eeb1,female,,2106-3 White,,2186-5 Not Hispanic or Latino,
+4,8507,2019,8,25,2019-08-25 00:00:00,8527,38003564,4,,,b54b1904-91b3-ca5d-7d0b-9e397a493981,male,,2106-3 White,,2186-5 Not Hispanic or Latino,
+5,8507,1989,11,20,1989-11-20 00:00:00,8527,38003564,5,,,bb0f1798-a377-3418-41f5-a58c8c6ed14d,male,,2106-3 White,,2186-5 Not Hispanic or Latino,
+6,8532,2012,3,7,2012-03-07 00:00:00,8527,38003564,6,,,bfc9945a-0277-0b39-6d0f-cea74f9dbeef,female,,2106-3 White,,2186-5 Not Hispanic or Latino,
+7,8532,1968,6,12,1968-06-12 00:00:00,8527,38003564,7,,,e5b3f440-be1a-4792-e16f-1068bca6b47f,female,,2106-3 White,,2186-5 Not Hispanic or Latino,
+8,8507,1989,11,20,1989-11-20 00:00:00,8527,38003564,8,,,ef2d5ebf-f455-9971-3022-dcf9569a5cca,male,,2106-3 White,,2186-5 Not Hispanic or Latino,

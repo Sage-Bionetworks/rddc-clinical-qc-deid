@@ -1,0 +1,7 @@
+{
+  "suffix": ".csv",
+  "additionalType": "OmopTableFile",
+  "cdmTable": "person",
+  "valid": "person_id,gender_concept_id,year_of_birth,race_concept_id,ethnicity_concept_id\n1,0,2000,0,0\n",
+  "invalid": "person_id,gender_concept_id,year_of_birth,race_concept_id,ethnicity_concept_id\n2,0,2000,0,0,extra\n"
+}

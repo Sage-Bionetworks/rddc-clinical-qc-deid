@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rddc-omop-screen"
+version = "0.1.0"
+description = "Identifier screen for OMOP CDM 5.4 tables at RDDC intake"
+requires-python = ">=3.11"
+dependencies = ["rddc-screen-common==0.1.0", "pyyaml>=6", "pyarrow>=15"]
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[project.scripts]
+rddc-omop-screen = "rddc_omop_screen.cli:main"
+
+[tool.setuptools.package-data]
+rddc_omop_screen = ["rules.yaml", "qc_columns.json"]
