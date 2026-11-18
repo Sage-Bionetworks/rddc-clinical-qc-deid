@@ -1,0 +1,9 @@
+**/.git
+**/.venv
+**/.tools
+**/.nextflow*
+**/work
+**/results
+**/__pycache__
+**/.pytest_cache
+**/*.egg-info
