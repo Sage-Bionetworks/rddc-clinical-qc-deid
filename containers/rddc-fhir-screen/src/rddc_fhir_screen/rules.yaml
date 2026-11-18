@@ -1,0 +1,88 @@
+# Identifier screen rules for FHIR R4 (rddc-source-map/qc_deid_inventory.md, section 4.2).
+#
+# Actions, and the data property each one reports to the orchestrator:
+#   stop       direct identifier                     -> direct_identifiers (quarantines the batch)
+#   provider   clinician or site identity            -> per --provider-policy: stop, or review
+#   dates      full date (inventory for release)     -> dates
+#   zip_codes  ZIP code (inventory for release)      -> zip_codes
+#   free_text  prose to de-identify (deid_fhir)      -> free_text
+#   review     a finding for a curator, no property
+#
+# Paths are dot paths from the resource root; arrays are walked through. A rule matches
+# every non-empty value at or below its path.
+version: 0.1.0
+
+elements:
+- id: patient_direct
+  resources: [Patient]
+  paths: [name, telecom, address.line, address.city, address.district, address.text, address.extension,
+          identifier, photo, contact, link]
+  action: stop
+- id: related_person_direct
+  resources: [RelatedPerson, FamilyMemberHistory]
+  paths: [name, telecom, address.line, address.city, address.district, address.text, identifier, photo]
+  action: stop
+- id: device_identifiers
+  resources: [Device]
+  paths: [udiCarrier, serialNumber, distinctIdentifier]
+  action: stop
+- id: provider_identity
+  resources: [Practitioner, PractitionerRole, Organization, Location]
+  paths: [name, alias, identifier, telecom, address, position, photo]
+  action: provider
+- id: narrative
+  resources: ["*"]
+  paths: [text.div]
+  action: free_text
+- id: free_text_elements
+  resources: ["*"]
+  paths: [note.text, valueString, component.valueString, interpretation.text, conclusion, code.text,
+          reaction.description, dosageInstruction.text, dosageInstruction.patientInstruction,
+          item.answer.valueString, item.item.answer.valueString, description, comment]
+  action: free_text
+- id: attachments
+  # Whole documents and images inside a resource: extracted and routed by content type
+  # (inventory 4.2 and gap 10), not screened here.
+  resources: ["*"]
+  paths: [content.attachment.data, content.attachment.url, presentedForm, data, valueAttachment]
+  action: review
+
+# Keys matched anywhere in a resource.
+keys:
+  postalCode: zip_codes
+
+# Reference.display carries names even when the target resource is clean. The action
+# depends on the type the reference points to (Patient/123, or Practitioner?identifier=...).
+reference_display:
+  stop: [Patient, RelatedPerson, Person]
+  provider: [Practitioner, PractitionerRole, Organization, Location]
+  other: free_text
+# A conditional reference to a clinician or site embeds its identifier (an NPI).
+reference_provider_identifier: provider
+
+# Extensions by URL. A string-, name-, address- or contact-valued extension with an URL not
+# listed here is reported for review (unknown extension).
+extensions:
+  http://hl7.org/fhir/StructureDefinition/patient-mothersMaidenName: stop
+  http://hl7.org/fhir/StructureDefinition/patient-birthPlace: stop
+  http://hl7.org/fhir/StructureDefinition/geolocation: stop
+  http://hl7.org/fhir/us/core/StructureDefinition/us-core-race: ok
+  http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity: ok
+  http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex: ok
+  ombCategory: ok
+  detailed: ok
+  text: ok
+
+# Full dates (YYYY-MM-DD, with or without a time) anywhere but under meta.
+dates:
+  action: dates
+  skip_under: [meta]
+
+# Pattern detectors run on every string value, except under these keys (codes, systems and
+# URLs, which are not free values).
+patterns:
+  action: stop
+  skip_keys: [system, url, profile, reference, fullUrl, code, version, resourceType]
+  # URLs to these hosts are not identifiers.
+  url_hosts: [www.w3.org, hl7.org, terminology.hl7.org, loinc.org, snomed.info, unitsofmeasure.org,
+              www.nlm.nih.gov, github.com/synthetichealth]

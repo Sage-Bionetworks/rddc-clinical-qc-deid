@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rddc-fhir-screen"
+version = "0.1.0"
+description = "Identifier screen for FHIR R4 files at RDDC intake"
+requires-python = ">=3.11"
+dependencies = ["rddc-screen-common==0.1.0", "pyyaml>=6"]
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[project.scripts]
+rddc-fhir-screen = "rddc_fhir_screen.cli:main"
+
+[tool.setuptools.package-data]
+rddc_fhir_screen = ["rules.yaml"]

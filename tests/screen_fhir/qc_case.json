@@ -1,0 +1,6 @@
+{
+  "suffix": ".ndjson",
+  "additionalType": "FhirFile",
+  "valid": "{\"resourceType\":\"Patient\",\"id\":\"p1\"}\n",
+  "invalid": "{\"id\":\"p2\",\"name\":\"synthetic-placeholder\"}\n"
+}

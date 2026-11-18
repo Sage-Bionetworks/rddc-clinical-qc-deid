@@ -1,0 +1,515 @@
+{
+  "@context": {
+    "@language": "en",
+    "@vocab": "https://schema.org/",
+    "arrayShape": "cr:arrayShape",
+    "citeAs": "cr:citeAs",
+    "column": "cr:column",
+    "conformsTo": "dct:conformsTo",
+    "containedIn": "cr:containedIn",
+    "cr": "http://mlcommons.org/croissant/",
+    "rai": "http://mlcommons.org/croissant/RAI/",
+    "data": {
+      "@id": "cr:data",
+      "@type": "@json"
+    },
+    "dataType": {
+      "@id": "cr:dataType",
+      "@type": "@vocab"
+    },
+    "dct": "http://purl.org/dc/terms/",
+    "description": {
+      "@container": "@language"
+    },
+    "equivalentProperty": "cr:equivalentProperty",
+    "examples": {
+      "@id": "cr:examples",
+      "@type": "@json"
+    },
+    "extract": "cr:extract",
+    "field": "cr:field",
+    "fileProperty": "cr:fileProperty",
+    "fileObject": "cr:fileObject",
+    "fileSet": "cr:fileSet",
+    "format": "cr:format",
+    "includes": "cr:includes",
+    "isArray": "cr:isArray",
+    "isLiveDataset": "cr:isLiveDataset",
+    "jsonPath": "cr:jsonPath",
+    "key": "cr:key",
+    "md5": "cr:md5",
+    "name": {
+      "@container": "@language"
+    },
+    "parentField": "cr:parentField",
+    "path": "cr:path",
+    "recordSet": "cr:recordSet",
+    "references": "cr:references",
+    "regex": "cr:regex",
+    "repeated": "cr:repeated",
+    "replace": "cr:replace",
+    "samplingRate": "cr:samplingRate",
+    "sc": "https://schema.org/",
+    "separator": "cr:separator",
+    "source": "cr:source",
+    "subField": "cr:subField",
+    "transform": "cr:transform",
+    "rddc": "https://w3id.org/rddc/sidecar/",
+    "prov": "http://www.w3.org/ns/prov#",
+    "additionalType": {
+      "@id": "sc:additionalType",
+      "@type": "@id"
+    },
+    "assay": "rddc:assay",
+    "batchId": "rddc:batchId",
+    "bucket": "rddc:bucket",
+    "bundleType": "rddc:bundleType",
+    "cdmEtlReference": "rddc:cdmEtlReference",
+    "cdmHolder": "rddc:cdmHolder",
+    "cdmReleaseDate": "rddc:cdmReleaseDate",
+    "cdmSource": "rddc:cdmSource",
+    "cdmSourceAbbreviation": "rddc:cdmSourceAbbreviation",
+    "cdmSourceName": "rddc:cdmSourceName",
+    "cdmTable": "rddc:cdmTable",
+    "cdmVersion": "rddc:cdmVersion",
+    "compression": "rddc:compression",
+    "confidence": "rddc:confidence",
+    "confirmed": "rddc:confirmed",
+    "consentRef": "rddc:consentRef",
+    "containsBiometricIdentifiers": "rddc:containsBiometricIdentifiers",
+    "containsDates": "rddc:containsDates",
+    "containsFreeText": "rddc:containsFreeText",
+    "containsZipCodes": "rddc:containsZipCodes",
+    "contributorId": "rddc:contributorId",
+    "deliveryRole": "rddc:deliveryRole",
+    "directIdentifiersRemoved": "rddc:directIdentifiersRemoved",
+    "excludes": "cr:excludes",
+    "exportTime": "rddc:exportTime",
+    "fieldPath": "rddc:fieldPath",
+    "idSystem": "rddc:idSystem",
+    "identifierSystemUri": "rddc:identifierSystemUri",
+    "indexOf": "rddc:indexOf",
+    "interaction": "rddc:interaction",
+    "issuedAt": "rddc:issuedAt",
+    "issuedBy": "rddc:issuedBy",
+    "method": "rddc:method",
+    "modalities": "rddc:modalities",
+    "modality": "rddc:modality",
+    "notes": "rddc:notes",
+    "noticeRef": "rddc:noticeRef",
+    "origin": "rddc:origin",
+    "pairedWith": "rddc:pairedWith",
+    "platform": "rddc:platform",
+    "prefixPattern": "rddc:prefixPattern",
+    "processingHints": "rddc:processingHints",
+    "recordCount": "rddc:recordCount",
+    "referenceGenome": "rddc:referenceGenome",
+    "region": "rddc:region",
+    "registerVersion": "rddc:registerVersion",
+    "resourceType": "rddc:resourceType",
+    "sensitivity": "rddc:sensitivity",
+    "sourceId": "rddc:sourceId",
+    "sourceReleaseDate": "rddc:sourceReleaseDate",
+    "subjectCount": "rddc:subjectCount",
+    "subjectId": "rddc:subjectId",
+    "subjectIds": "rddc:subjectIds",
+    "subjects": "rddc:subjects",
+    "synthetic": "rddc:synthetic",
+    "tableName": "rddc:tableName",
+    "templateIds": "rddc:templateIds",
+    "valueOrigins": "rddc:valueOrigins",
+    "vocabularyVersion": "rddc:vocabularyVersion",
+    "wasAttributedTo": "prov:wasAttributedTo",
+    "wasDerivedFrom": "prov:wasDerivedFrom"
+  },
+  "@id": "urn:uuid:5e1d0c2a-0000-4000-8000-0000000000c1",
+  "@type": "sc:Dataset",
+  "conformsTo": [
+    "http://mlcommons.org/croissant/1.1",
+    "https://w3id.org/rddc/sidecar/0.1.0"
+  ],
+  "name": "src-synthea-01/2026-11-synthea-clean",
+  "url": "s3://rddc-deposit-test/src-synthea-01/2026-11-synthea-clean/",
+  "dateCreated": "2026-11-17T00:00:00Z",
+  "wasAttributedTo": {
+    "@type": "sc:SoftwareApplication",
+    "name": "rddc-sidecar",
+    "softwareVersion": "0.1.0"
+  },
+  "contributorId": "test-site",
+  "sourceId": "src-synthea-01",
+  "batchId": "2026-11-synthea-clean",
+  "interaction": "add",
+  "sensitivity": {
+    "directIdentifiersRemoved": true,
+    "synthetic": true,
+    "containsDates": true,
+    "containsZipCodes": true,
+    "containsFreeText": true
+  },
+  "subjects": [
+    {
+      "subjectId": "592ad309-7d98-4a5d-dbcb-2a5c6379c99e",
+      "idSystem": "fhir_patient_id"
+    },
+    {
+      "subjectId": "5a1715ff-f3e1-47a1-ab36-743ba8fd4194",
+      "idSystem": "fhir_patient_id"
+    },
+    {
+      "subjectId": "6fc9c194-c31f-04d6-7940-dbb11dd2eeb1",
+      "idSystem": "fhir_patient_id"
+    },
+    {
+      "subjectId": "b54b1904-91b3-ca5d-7d0b-9e397a493981",
+      "idSystem": "fhir_patient_id"
+    },
+    {
+      "subjectId": "bb0f1798-a377-3418-41f5-a58c8c6ed14d",
+      "idSystem": "fhir_patient_id"
+    },
+    {
+      "subjectId": "bfc9945a-0277-0b39-6d0f-cea74f9dbeef",
+      "idSystem": "fhir_patient_id"
+    },
+    {
+      "subjectId": "e5b3f440-be1a-4792-e16f-1068bca6b47f",
+      "idSystem": "fhir_patient_id"
+    },
+    {
+      "subjectId": "ef2d5ebf-f455-9971-3022-dcf9569a5cca",
+      "idSystem": "fhir_patient_id"
+    }
+  ],
+  "distribution": [
+    {
+      "@id": "urn:uuid:10734f73-0aa2-594a-8e2a-16ef7d79582d",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:FhirNdjsonFile",
+      "name": "fhir/AllergyIntolerance.ndjson.gz",
+      "contentUrl": "fhir/AllergyIntolerance.ndjson.gz",
+      "contentSize": "1616 B",
+      "encodingFormat": "application/fhir+ndjson",
+      "sha256": "24229f706fb4fe243c1ed47ea5ee1f144ac68addcc4f9cf70e67d57db9aa1d4c",
+      "md5": "cd00f34303aef06b49b32e323136997c",
+      "compression": "gzip",
+      "modality": "clinical_fhir",
+      "resourceType": "AllergyIntolerance",
+      "recordCount": 26
+    },
+    {
+      "@id": "urn:uuid:7cbb0e2e-606f-5bf4-a463-0a3fa674cae2",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:FhirNdjsonFile",
+      "name": "fhir/CarePlan.ndjson.gz",
+      "contentUrl": "fhir/CarePlan.ndjson.gz",
+      "contentSize": "5537 B",
+      "encodingFormat": "application/fhir+ndjson",
+      "sha256": "8c03f30e19a771b53fc64c22704252fcce1146e6e166269e817329124bad0065",
+      "md5": "e18807b9fd3828fda087636b06f6fce6",
+      "compression": "gzip",
+      "modality": "clinical_fhir",
+      "resourceType": "CarePlan",
+      "recordCount": 29
+    },
+    {
+      "@id": "urn:uuid:adedf2bb-8fd4-527f-be51-77fbd5bbb8b9",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:FhirNdjsonFile",
+      "name": "fhir/Condition.ndjson.gz",
+      "contentUrl": "fhir/Condition.ndjson.gz",
+      "contentSize": "12579 B",
+      "encodingFormat": "application/fhir+ndjson",
+      "sha256": "1f70ea16a5408f4d535e7b59453ee7ce8c99e724e95386838983d48b3ecc80c0",
+      "md5": "cf84022e708b2c80da840cb74de58679",
+      "compression": "gzip",
+      "modality": "clinical_fhir",
+      "resourceType": "Condition",
+      "recordCount": 198
+    },
+    {
+      "@id": "urn:uuid:8494a102-57b4-59a9-a268-07eda46b8ac7",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:FhirNdjsonFile",
+      "name": "fhir/Device.ndjson.gz",
+      "contentUrl": "fhir/Device.ndjson.gz",
+      "contentSize": "1760 B",
+      "encodingFormat": "application/fhir+ndjson",
+      "sha256": "535fc78040aa82af377e00b15617a503094cd1d44456a9da20d71c0cbf167a6f",
+      "md5": "4457ecebe9c3433868cde890b9f01b60",
+      "compression": "gzip",
+      "modality": "clinical_fhir",
+      "resourceType": "Device",
+      "recordCount": 25
+    },
+    {
+      "@id": "urn:uuid:eaa168f3-b22d-5c11-b6e0-e39279f5a67d",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:FhirNdjsonFile",
+      "name": "fhir/Encounter.ndjson.gz",
+      "contentUrl": "fhir/Encounter.ndjson.gz",
+      "contentSize": "25411 B",
+      "encodingFormat": "application/fhir+ndjson",
+      "sha256": "fa615fc73bd9c63b8336ff24844487e2589e857ce9f96b5e27883459838f8028",
+      "md5": "07f315935e11b1a4de028e7ab2781b1b",
+      "compression": "gzip",
+      "modality": "clinical_fhir",
+      "resourceType": "Encounter",
+      "recordCount": 393
+    },
+    {
+      "@id": "urn:uuid:5de352d6-15bb-569c-ba8b-468461c6b2d4",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:FhirNdjsonFile",
+      "name": "fhir/Immunization.ndjson.gz",
+      "contentUrl": "fhir/Immunization.ndjson.gz",
+      "contentSize": "4485 B",
+      "encodingFormat": "application/fhir+ndjson",
+      "sha256": "a367c87d13b36faf5d33e0276d7b6fa8c650793924771b2defb0fd84b5d4dbbf",
+      "md5": "5792ea565ccc7e5133802f698784085f",
+      "compression": "gzip",
+      "modality": "clinical_fhir",
+      "resourceType": "Immunization",
+      "recordCount": 117
+    },
+    {
+      "@id": "urn:uuid:7d106057-4591-5652-8eb1-4cd573f73da2",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:FhirNdjsonFile",
+      "name": "fhir/Medication.ndjson.gz",
+      "contentUrl": "fhir/Medication.ndjson.gz",
+      "contentSize": "1239 B",
+      "encodingFormat": "application/fhir+ndjson",
+      "sha256": "815cde2b476da519ce75ec72989a01f5ea4ec83375ba4b92a6638774b54ecc28",
+      "md5": "f56aec0b7453d148aa0f4ab0e5d5ee20",
+      "compression": "gzip",
+      "modality": "clinical_fhir",
+      "resourceType": "Medication",
+      "recordCount": 28
+    },
+    {
+      "@id": "urn:uuid:acd7bb97-a92a-5348-8076-b1c74ff2e8ca",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:FhirNdjsonFile",
+      "name": "fhir/MedicationAdministration.ndjson.gz",
+      "contentUrl": "fhir/MedicationAdministration.ndjson.gz",
+      "contentSize": "2115 B",
+      "encodingFormat": "application/fhir+ndjson",
+      "sha256": "30816b8d87c447f24e63fc31b253365aa35433ff92e3818a79c49e982ef1888b",
+      "md5": "57e5e5b473846cf4c1950d1e8616f0df",
+      "compression": "gzip",
+      "modality": "clinical_fhir",
+      "resourceType": "MedicationAdministration",
+      "recordCount": 28
+    },
+    {
+      "@id": "urn:uuid:245c43ec-2c64-5179-9619-7aeeb82c307e",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:FhirNdjsonFile",
+      "name": "fhir/MedicationRequest.ndjson.gz",
+      "contentUrl": "fhir/MedicationRequest.ndjson.gz",
+      "contentSize": "8511 B",
+      "encodingFormat": "application/fhir+ndjson",
+      "sha256": "f0c7d885c629e0a546c477c13a9ac366570b724c5036f0ac10e5e70787a846d9",
+      "md5": "8eb1890c4c28738a900c8b6d662c88bc",
+      "compression": "gzip",
+      "modality": "clinical_fhir",
+      "resourceType": "MedicationRequest",
+      "recordCount": 134
+    },
+    {
+      "@id": "urn:uuid:be33df32-f23e-514a-8a5d-571486cf0565",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:FhirNdjsonFile",
+      "name": "fhir/Observation.ndjson.gz",
+      "contentUrl": "fhir/Observation.ndjson.gz",
+      "contentSize": "73240 B",
+      "encodingFormat": "application/fhir+ndjson",
+      "sha256": "7b93fd67923e2fe6e72d81fe7b17e61316699eb931323edc9575cd4ab229cdc0",
+      "md5": "7cbfc22d2bb145e314d58a62b1f177e3",
+      "compression": "gzip",
+      "modality": "clinical_fhir",
+      "resourceType": "Observation",
+      "recordCount": 1249
+    },
+    {
+      "@id": "urn:uuid:e8a10541-bbe4-5f3a-948a-7ffac4e84720",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:FhirNdjsonFile",
+      "name": "fhir/Organization.ndjson.gz",
+      "contentUrl": "fhir/Organization.ndjson.gz",
+      "contentSize": "1325 B",
+      "encodingFormat": "application/fhir+ndjson",
+      "sha256": "958bdcfe70d4e26e37442a690a3c373c4e174922e0eed55dbd14ad157f1518b8",
+      "md5": "e2eaf8ae27d76a5d05f51c69624e463b",
+      "compression": "gzip",
+      "modality": "clinical_fhir",
+      "resourceType": "Organization",
+      "recordCount": 27
+    },
+    {
+      "@id": "urn:uuid:6d561644-8bd3-581a-b6d6-2b17ff1f2b87",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:FhirNdjsonFile",
+      "name": "fhir/Patient.ndjson.gz",
+      "contentUrl": "fhir/Patient.ndjson.gz",
+      "contentSize": "1511 B",
+      "encodingFormat": "application/fhir+ndjson",
+      "sha256": "fa64848af4b26ebb452cabf35b8c54f1b1c0cb1739d57ff4645306bf7df7a054",
+      "md5": "e4ccb9047fb7343fbcc755728a76a4bb",
+      "compression": "gzip",
+      "modality": "clinical_fhir",
+      "resourceType": "Patient",
+      "subjectIds": [
+        "592ad309-7d98-4a5d-dbcb-2a5c6379c99e",
+        "5a1715ff-f3e1-47a1-ab36-743ba8fd4194",
+        "6fc9c194-c31f-04d6-7940-dbb11dd2eeb1",
+        "b54b1904-91b3-ca5d-7d0b-9e397a493981",
+        "bb0f1798-a377-3418-41f5-a58c8c6ed14d",
+        "bfc9945a-0277-0b39-6d0f-cea74f9dbeef",
+        "e5b3f440-be1a-4792-e16f-1068bca6b47f",
+        "ef2d5ebf-f455-9971-3022-dcf9569a5cca"
+      ],
+      "recordCount": 8
+    },
+    {
+      "@id": "urn:uuid:eec4e774-9c7b-5c77-b8c0-ee52c7053d5c",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:FhirNdjsonFile",
+      "name": "fhir/Practitioner.ndjson.gz",
+      "contentUrl": "fhir/Practitioner.ndjson.gz",
+      "contentSize": "1001 B",
+      "encodingFormat": "application/fhir+ndjson",
+      "sha256": "d1c0f487284beb1d5c4c55f09059deb214d484b21c466795336104938c66e8b1",
+      "md5": "25c5ac56158c1958564811f5cb47a392",
+      "compression": "gzip",
+      "modality": "clinical_fhir",
+      "resourceType": "Practitioner",
+      "recordCount": 27
+    },
+    {
+      "@id": "urn:uuid:09f0ce82-410c-5304-9772-0e969b1de55f",
+      "@type": "cr:FileObject",
+      "additionalType": "rddc:FhirNdjsonFile",
+      "name": "fhir/Procedure.ndjson.gz",
+      "contentUrl": "fhir/Procedure.ndjson.gz",
+      "contentSize": "30493 B",
+      "encodingFormat": "application/fhir+ndjson",
+      "sha256": "00551d40e4b57ca2237e5df03d390e840b0076e8a3fdd30aad0a1d3a1188bf32",
+      "md5": "9ef282924580cc2f0e03e16480d6f37b",
+      "compression": "gzip",
+      "modality": "clinical_fhir",
+      "resourceType": "Procedure",
+      "recordCount": 667
+    },
+    {
+      "@id": "fhir_bulk_export",
+      "@type": "cr:FileSet",
+      "additionalType": "rddc:FhirBulkExport",
+      "name": "FHIR bulk export (fhir/)",
+      "encodingFormat": "application/fhir+ndjson",
+      "includes": [
+        "fhir/*.ndjson.gz"
+      ],
+      "hasPart": [
+        {
+          "@id": "urn:uuid:10734f73-0aa2-594a-8e2a-16ef7d79582d"
+        },
+        {
+          "@id": "urn:uuid:7cbb0e2e-606f-5bf4-a463-0a3fa674cae2"
+        },
+        {
+          "@id": "urn:uuid:adedf2bb-8fd4-527f-be51-77fbd5bbb8b9"
+        },
+        {
+          "@id": "urn:uuid:8494a102-57b4-59a9-a268-07eda46b8ac7"
+        },
+        {
+          "@id": "urn:uuid:eaa168f3-b22d-5c11-b6e0-e39279f5a67d"
+        },
+        {
+          "@id": "urn:uuid:5de352d6-15bb-569c-ba8b-468461c6b2d4"
+        },
+        {
+          "@id": "urn:uuid:7d106057-4591-5652-8eb1-4cd573f73da2"
+        },
+        {
+          "@id": "urn:uuid:acd7bb97-a92a-5348-8076-b1c74ff2e8ca"
+        },
+        {
+          "@id": "urn:uuid:245c43ec-2c64-5179-9619-7aeeb82c307e"
+        },
+        {
+          "@id": "urn:uuid:be33df32-f23e-514a-8a5d-571486cf0565"
+        },
+        {
+          "@id": "urn:uuid:e8a10541-bbe4-5f3a-948a-7ffac4e84720"
+        },
+        {
+          "@id": "urn:uuid:6d561644-8bd3-581a-b6d6-2b17ff1f2b87"
+        },
+        {
+          "@id": "urn:uuid:eec4e774-9c7b-5c77-b8c0-ee52c7053d5c"
+        },
+        {
+          "@id": "urn:uuid:09f0ce82-410c-5304-9772-0e969b1de55f"
+        }
+      ],
+      "conformsTo": [
+        "http://hl7.org/fhir/R4",
+        "http://hl7.org/fhir/us/core/STU6.1"
+      ],
+      "exportTime": "2026-11-11T00:00:00Z",
+      "subjectCount": 8,
+      "valueOrigins": [
+        {
+          "fieldPath": "/exportTime",
+          "origin": "declared",
+          "method": "option.export_time"
+        }
+      ]
+    }
+  ],
+  "valueOrigins": [
+    {
+      "fieldPath": "/contributorId",
+      "origin": "declared",
+      "method": "option"
+    },
+    {
+      "fieldPath": "/sourceId",
+      "origin": "declared",
+      "method": "option"
+    },
+    {
+      "fieldPath": "/url",
+      "origin": "declared",
+      "method": "option"
+    },
+    {
+      "fieldPath": "/sensitivity/containsDates",
+      "origin": "detected",
+      "method": "content"
+    },
+    {
+      "fieldPath": "/sensitivity/containsZipCodes",
+      "origin": "detected",
+      "method": "content"
+    },
+    {
+      "fieldPath": "/sensitivity/containsFreeText",
+      "origin": "detected",
+      "method": "content"
+    },
+    {
+      "fieldPath": "/sensitivity/directIdentifiersRemoved",
+      "origin": "declared",
+      "method": "option.attest"
+    },
+    {
+      "fieldPath": "/sensitivity/synthetic",
+      "origin": "declared",
+      "method": "option.synthetic"
+    }
+  ]
+}
