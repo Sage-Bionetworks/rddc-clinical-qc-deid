@@ -1,0 +1,24 @@
+{
+  "form": {
+    "title": "FHIR QC and identifier screening",
+    "description": "Checks file structure before screening for identifiers. A structural QC failure stops the run. Direct identifiers quarantine the batch; dates, ZIP codes and free text are reported for later steps. Source data stays unchanged.",
+    "type": "object",
+    "properties": {
+      "provider_policy": {
+        "type": "string",
+        "title": "Clinician and site identity",
+        "description": "From the source register: stop treats clinician and site names and identifiers as direct identifiers; review reports them for a curator.",
+        "enum": [
+          "stop",
+          "review"
+        ],
+        "default": "stop"
+      }
+    }
+  },
+  "ui": {
+    "ui:order": [
+      "provider_policy"
+    ]
+  }
+}

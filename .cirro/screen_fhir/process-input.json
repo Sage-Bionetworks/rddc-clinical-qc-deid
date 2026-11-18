@@ -1,0 +1,4 @@
+{
+  "provider_policy": "$.dataset.params.provider_policy",
+  "outdir": "$.dataset.dataPath"
+}
