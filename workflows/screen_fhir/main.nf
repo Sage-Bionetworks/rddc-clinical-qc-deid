@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 /*
  * screen_fhir: check incoming FHIR R4 files for identifiers.
- * See rddc-source-map/qc_deid_inventory.md, section 4.2.
+ * The rules come from RDDC's QC and de-identification inventory, section 4.2.
  *
  * Input: the batch's sidecar (--sidecar, _sidecar.json). Every FhirFile in it is screened;
  * other files are listed in intake.tsv as skipped. The screen leaves the data unchanged and

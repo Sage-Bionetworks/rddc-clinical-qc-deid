@@ -49,7 +49,7 @@ the batch, does fail the run because it could not be screened.
 ## Checks
 
 The [FHIR rules](../../containers/rddc-fhir-screen/src/rddc_fhir_screen/rules.yaml)
-come from section 4.2 of `rddc-source-map/qc_deid_inventory.md`.
+come from section 4.2 of RDDC's QC and de-identification inventory, an internal planning document.
 Element rules, which name fields of particular resources, are FHIRPath (R4) expressions,
 so the same paths can drive de-identification. Checks that apply to every value, such as
 patterns, dates, reference display text and extensions, walk each resource directly.
