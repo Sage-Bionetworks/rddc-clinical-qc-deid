@@ -62,6 +62,9 @@ In the table below, `stop` flags a direct identifier. “Provider policy” uses
 | Patient names, contact details, address lines/city/district/text/extensions, identifiers, photos, contacts and links | `stop` |
 | RelatedPerson and FamilyMemberHistory names, contact details, address lines/city/district/text, identifiers and photos | `stop` |
 | Device `udiCarrier`, `serialNumber` and `distinctIdentifier` | `stop` |
+| Resource ids of Patient, RelatedPerson and Person | `stop` |
+| Identifiers on all other resources, such as visit, accession, order and claim numbers; Medication and Substance product codes are not checked | `stop` |
+| Resource ids of Practitioner and PractitionerRole | Provider policy |
 | Practitioner, PractitionerRole, Organization and Location names, aliases, identifiers, contact details, addresses, positions and photos | Provider policy |
 | `Reference.display` pointing to Patient, RelatedPerson or Person | `stop` |
 | `Reference.display` pointing to a clinician or site; conditional references such as `Practitioner?identifier=…` | Provider policy |
@@ -73,6 +76,11 @@ In the table below, `stop` flags a direct identifier. “Provider policy” uses
 | Full dates outside `meta` | `dates` |
 | `postalCode` | `zip_codes` |
 | Attachments: DocumentReference content, `DiagnosticReport.presentedForm`, `Media.content`, `Binary.data`, Communication payloads, QuestionnaireResponse answers and extensions | `review` |
+
+Resource ids and the identifiers on other resources pass when they are opaque (a UUID,
+set by `opaque_ids` in the rules) or a pseudonym the source confirmed. Opaque values appear
+in `findings.tsv` with action `opaque`. A source that uses MRNs as resource ids, or real
+visit numbers, is stopped.
 
 Pattern checks skip fields listed in `patterns.skip_keys`, such as codes, systems and
 reference URLs, and elements whose R4 type is `canonical`, such as `meta.profile` and
@@ -88,17 +96,28 @@ list is `skip_resources` in the rules.
 ## Source configs
 
 A source can confirm the pseudonyms it uses in place of identifiers and names, such as a
-study ID in `Patient.identifier` or a placeholder name. It can also list its own
-extensions. These are recorded in
+study ID in `Patient.identifier`, a placeholder name, a non-UUID resource id, or its own
+visit and order numbers. It can also list its own extensions. These are recorded in
 [`assets/sources/<sourceId>/fhir_screen.yaml`](../../assets/sources/README.md), and each
 source confirms them before its first deposit. A value passes only if it matches a
-confirmed pattern exactly: an identifier needs the confirmed system and a matching value,
-and a name needs every part to match. Identifiers and names that do not match are
+confirmed pattern exactly: an identifier needs a confirmed system and a matching value, a
+name needs every part to match, and a resource id must match the confirmed id pattern. Identifiers and names that do not match are
 handled as usual. A value that passes appears in `findings.tsv` with action `pseudonym`
 and the source ID as detector. It adds no property and does not quarantine the batch.
 
 The source config's `source_id` must match the sidecar's `sourceId`. A source can add
 extension URLs but cannot change the actions set by the shared rules.
+
+## Testing
+
+The automated tests use the committed Synthea fixtures: the `dirty` batch is quarantined,
+the `clean` batch passes, and intake and QC failures stop the run. The screen has also
+been run on two other sources, outside CI:
+
+| Data | Kind | Result |
+| --- | --- | --- |
+| [MIMIC-IV Clinical Database Demo on FHIR](https://physionet.org/content/mimic-iv-fhir-demo/2.1.0/) 2.1.0 | De-identified real data: 100 patients, 30 files | With the `src-mimic-demo` source config and `--provider_policy review`, every file passes. Dates and free text are reported. With the default `stop` policy, the hospital's Organization and Location names quarantine their files. |
+| FDNA mock package (ARPA-H RAPID) | Synthetic: 30 cases, FHIR R4 with profiles and images | The FHIR part passes with the `src-fdna-mock` source config. Its definition resources are skipped and its 90 Media attachments are reported for review. The images were deposited as a separate batch and are not screened by this workflow. |
 
 ## Limits
 
@@ -108,3 +127,24 @@ Pattern detectors recognize fixed formats such as phone numbers. They do not rec
 names, places or dates written in prose. Free text is flagged for `deid_fhir` and
 `confirm_deid_text`. Attachments need separate extraction and handling by content type.
 UK-specific identifiers, including NHS numbers and postcodes, are not covered yet.
+
+## Further development
+
+In priority order, highest value first:
+
+1. **Missing Safe Harbor coverage.** Add `Organization.contact`,
+   `Practitioner.qualification.identifier` (licence numbers), `Coverage.subscriberId`
+   (health plan numbers held as a string) and SSNs without dashes.
+2. **Routing by sidecar class.** A FHIR file whose `additionalType` is not a FHIR class
+   is skipped without being screened. Intake could detect FHIR content and refuse to
+   skip it.
+3. **Workflow test with a source config.** CI runs only the Synthea fixtures. A small
+   MIMIC-IV demo excerpt (ODbL) would test pseudonyms and source extensions end to end.
+4. **URL allow-list.** Hosts match by prefix, so `hl7.org.example.com` passes, and
+   `github.com/synthetichealth` is there only for the test fixtures. Match whole hosts,
+   and move fixture hosts into a test source config.
+5. **Shared rules with `deid_fhir`.** Export the element rules as an anonymizer
+   configuration (Microsoft Tools for Health Data Anonymization), and decide the
+   date-shift scope (per patient or per batch) before implementing it.
+6. **Profile, terminology and reference QC**, beyond file structure.
+7. **UK identifiers**, including NHS numbers and postcodes.

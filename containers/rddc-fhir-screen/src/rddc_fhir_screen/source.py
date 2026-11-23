@@ -14,9 +14,10 @@ reports it as such. The file is assets/sources/<sourceId>/fhir_screen.yaml:
       http://mimic.mit.edu/fhir/mimic/StructureDefinition/lab-priority: ok
 
 Patterns are regular expressions that must match a whole value. An identifier is a
-pseudonym when its system is identifier_system and its value matches identifier_pattern.
-A name is a pseudonym when every part of it (text, family, given, prefix, suffix) matches
-name_pattern; for Organization.name and other string names, the whole string must match.
+pseudonym when its system is identifier_system (one URI or a list) and its value matches
+identifier_pattern. A name is a pseudonym when every part of it (text, family, given,
+prefix, suffix) matches name_pattern; for Organization.name and other string names, the
+whole string must match. A resource id is a pseudonym when it matches id_pattern.
 """
 
 import re
@@ -26,7 +27,7 @@ import yaml
 from . import r4
 
 KEYS = {"source_id", "pseudonyms", "extensions"}
-PSEUDONYM_KEYS = {"resources", "identifier_system", "identifier_pattern", "name_pattern", "note"}
+PSEUDONYM_KEYS = {"resources", "identifier_system", "identifier_pattern", "name_pattern", "id_pattern", "note"}
 EXTENSION_ACTIONS = {"ok", "review", "free_text", "stop"}
 NAME_PARTS = ("text", "family", "given", "prefix", "suffix")
 
@@ -57,18 +58,25 @@ class Pseudonym:
         bad = [t for t in self.resources if t not in r4.RESOURCES]
         if bad:
             raise SourceConfigError(f"{where}: not R4 resource types: {bad}")
-        self.system = entry.get("identifier_system")
+        systems = entry.get("identifier_system")
+        self.systems = set(systems) if isinstance(systems, list) else {systems} if systems is not None else set()
         has_id = "identifier_system" in entry or "identifier_pattern" in entry
-        if has_id and not (isinstance(self.system, str) and self.system and "identifier_pattern" in entry):
+        if has_id and not (self.systems and all(isinstance(x, str) and x for x in self.systems)
+                           and "identifier_pattern" in entry):
             raise SourceConfigError(f"{where}: identifier_system and identifier_pattern go together")
         self.identifier = _pattern(entry["identifier_pattern"], where) if has_id else None
         self.name = _pattern(entry["name_pattern"], where) if "name_pattern" in entry else None
-        if not (self.identifier or self.name):
-            raise SourceConfigError(f"{where}: give identifier_system and identifier_pattern, name_pattern, or both")
+        self.id = _pattern(entry["id_pattern"], where) if "id_pattern" in entry else None
+        if not (self.identifier or self.name or self.id):
+            raise SourceConfigError(f"{where}: give identifier_system and identifier_pattern, name_pattern "
+                                    "or id_pattern")
 
     def identifier_matches(self, value):
-        return (self.identifier is not None and isinstance(value, dict) and value.get("system") == self.system
+        return (self.identifier is not None and isinstance(value, dict) and value.get("system") in self.systems
                 and isinstance(value.get("value"), str) and bool(self.identifier.fullmatch(value["value"])))
+
+    def id_matches(self, value):
+        return self.id is not None and isinstance(value, str) and bool(self.id.fullmatch(value))
 
     def name_matches(self, value):
         if self.name is None:
@@ -91,12 +99,15 @@ class Source:
         self.extensions = dict(extensions or {})
 
     def is_pseudonym(self, resource_type, kind, value):
-        """Whether a value of an identifier or name element is a confirmed pseudonym."""
+        """Whether a value of an identifier, name or resource id element is a confirmed
+        pseudonym."""
         for p in self.pseudonyms:
             if resource_type in p.resources:
                 if kind == "identifier" and p.identifier_matches(value):
                     return True
                 if kind == "name" and p.name_matches(value):
+                    return True
+                if kind == "id" and p.id_matches(value):
                     return True
         return False
 

@@ -5,13 +5,18 @@ pseudonyms:
 - resources: [Patient]
   identifier_system: https://example.invalid/fdna-demo/identifier/patient
   identifier_pattern: 'patient-[0-9]{4}'
+  id_pattern: 'patient-[0-9]{4}'
 - resources: [RelatedPerson]
-  note: The parent person's identifier.
+  note: The identifier is the parent person's; the id is the parent-patient relationship's.
   identifier_system: https://example.invalid/fdna-demo/identifier/person
   identifier_pattern: 'parent-[0-9]{4}'
+  id_pattern: 'related-person-[0-9]{4}'
 - resources: [Practitioner]
   identifier_system: https://example.invalid/fdna-demo/identifier/practitioner
   identifier_pattern: 'practitioner-[0-9]{4}'
   name_pattern: 'Practitioner [0-9]{4}'
+  id_pattern: 'practitioner-[0-9]{4}'
+- resources: [PractitionerRole]
+  id_pattern: 'practitioner-role-[0-9]{4}'
 - resources: [Organization]
   name_pattern: '(Clinic|Organization) [0-9]{4}'

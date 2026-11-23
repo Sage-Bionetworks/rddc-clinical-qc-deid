@@ -119,7 +119,7 @@ def test_patient_direct_identifiers_stop(tmp_path):
 
 
 def test_clean_patient_passes(tmp_path):
-    found = screen([{"resourceType": "Patient", "id": "p1", "gender": "female", "birthDate": "1980"}], tmp_path)
+    found = screen([{"resourceType": "Patient", "id": "0b8e3c1e-5f0a-4c47-9a39-7c2f0f6d1a11", "gender": "female", "birthDate": "1980"}], tmp_path)
     assert properties(found) == []
 
 
@@ -207,13 +207,15 @@ def test_definition_resources_are_skipped(tmp_path):
 def test_skip_settings_name_r4_types():
     rules = load_rules()
     assert set(rules["skip_resources"]) <= r4.RESOURCES
+    for rule in rules["elements"]:
+        assert set(rule.get("except", [])) <= r4.RESOURCES, rule["id"]
     assert r4.element_type("StructureDefinition", ("differential", "element", "type", "targetProfile")) == "canonical"
     assert r4.element_type("Media", ("content", "url")) == "url"
 
 
 def test_confirmed_pseudonyms_pass(tmp_path):
     src = source_config(tmp_path, PSEUDONYMS, "src-test")
-    patient = {"resourceType": "Patient", "id": "p1", "name": [{"family": "Patient_000123"}],
+    patient = {"resourceType": "Patient", "id": "0b8e3c1e-5f0a-4c47-9a39-7c2f0f6d1a11", "name": [{"family": "Patient_000123"}],
                "identifier": [{"system": "https://example.org/id/patient", "value": "P000123"}]}
     site = {"resourceType": "Organization", "id": "o1", "name": "Site 04"}
     found = screen([patient, site], tmp_path, source=src)
@@ -283,6 +285,65 @@ def test_repository_source_configs_load():
     assert configs
     for p in configs:
         assert load_source(str(p), load_rules(), p.parent.name).id == p.parent.name
+
+
+UUID = "0b8e3c1e-5f0a-4c47-9a39-7c2f0f6d1a11"
+
+
+@pytest.mark.parametrize("res, rule", [
+    ({"resourceType": "Patient", "id": "MRN0012345"}, "person_resource_ids"),
+    ({"resourceType": "RelatedPerson", "id": "12345678"}, "person_resource_ids"),
+    ({"resourceType": "Encounter", "id": UUID, "identifier": [{"system": "https://ehr.example.org/visit", "value": "V123"}]},
+     "other_identifiers"),
+    ({"resourceType": "Coverage", "id": UUID, "identifier": [{"value": "PLAN-998877"}]}, "other_identifiers"),
+])
+def test_resource_ids_and_other_identifiers_stop(tmp_path, res, rule):
+    found = screen([res], tmp_path)
+    assert rule in {k.rule for k in found if k.action == "stop"}, found
+
+
+def test_opaque_ids_pass(tmp_path):
+    patient = {"resourceType": "Patient", "id": UUID}
+    enc = {"resourceType": "Encounter", "id": UUID,
+           "identifier": [{"system": "https://ehr.example.org/visit", "value": "urn:uuid:" + UUID}]}
+    found = screen([patient, enc], tmp_path)
+    assert properties(found) == []
+    assert rules_hit(found, "opaque") == {("Patient", "id", "person_resource_ids"),
+                                          ("Encounter", "identifier", "other_identifiers")}
+    # A clinician's id follows the provider policy.
+    doc = {"resourceType": "Practitioner", "id": "npi-1234567890"}
+    assert ("Practitioner", "id", "provider_resource_ids") in rules_hit(screen([doc], tmp_path, "review"), "review")
+
+
+def test_product_identifiers_are_not_checked(tmp_path):
+    med = {"resourceType": "Medication", "id": UUID,
+           "identifier": [{"system": "http://hl7.org/fhir/sid/ndc", "value": "00904629161"}]}
+    assert not [k for k in screen([med], tmp_path) if k.rule == "other_identifiers"]
+
+
+def test_confirmed_resource_ids_and_identifiers(tmp_path):
+    src = source_config(tmp_path, """
+source_id: src-test
+pseudonyms:
+- resources: [Patient]
+  id_pattern: 'patient-[0-9]{4}'
+- resources: [Encounter, Specimen]
+  identifier_system: [https://example.org/id/visit, https://example.org/id/specimen]
+  identifier_pattern: '[0-9]{8}'
+""", "src-test")
+    patient = {"resourceType": "Patient", "id": "patient-0001"}
+    enc = {"resourceType": "Encounter", "id": "e1-not-checked",
+           "identifier": [{"system": "https://example.org/id/visit", "value": "20001234"}]}
+    spec = {"resourceType": "Specimen", "id": UUID,
+            "identifier": [{"system": "https://example.org/id/specimen", "value": "30001234"}]}
+    found = screen([patient, enc, spec], tmp_path, source=src)
+    assert properties(found) == [], found
+    assert rules_hit(found, "pseudonym") == {("Patient", "id", "person_resource_ids"),
+                                             ("Encounter", "identifier", "other_identifiers"),
+                                             ("Specimen", "identifier", "other_identifiers")}
+    # A pseudonym and a real number together: the real number stops it.
+    enc["identifier"].append({"system": "https://ehr.example.org/mrn", "value": "MRN-55"})
+    assert "direct_identifiers" in properties(screen([enc], tmp_path, source=src))
 
 
 def test_pattern_in_free_text(tmp_path):

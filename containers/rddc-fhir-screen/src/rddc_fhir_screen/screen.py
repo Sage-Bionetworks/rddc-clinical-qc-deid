@@ -165,6 +165,10 @@ class Element:
         self.resource_type = root_type(expr)
         self.path = report_path(expr)
         self.kind = self._kind()
+        self.excluded = set(rule.get("except", []))
+        self.opaque = bool(rule.get("opaque"))
+        if self.opaque and self.kind not in ("id", "identifier"):
+            raise ValueError(f"rule {rule['id']}: opaque applies to resource ids and identifiers only, not {expr!r}")
         try:
             check_syntax(expr)
             self.fn = fhirpathpy.compile(expr, model=R4)
@@ -173,12 +177,20 @@ class Element:
         except Exception as exc:  # fhirpathpy raises bare Exceptions
             raise ValueError(f"rule {rule['id']}: invalid FHIRPath {expr!r}: {exc}") from exc
 
+    def applies_to(self, resource_type):
+        return self.resource_type in (None, resource_type) and resource_type not in self.excluded
+
     def _kind(self):
-        """"identifier" or "name" when the expression selects identifiers or names, which a
-        source can confirm as pseudonyms; otherwise None."""
-        if not self.resource_type or not re.fullmatch(r"[A-Za-z]+(\.[A-Za-z]+)+", self.expr):
+        """"identifier", "name" or "id" when the expression selects identifiers, names or the
+        resource id, which a source can confirm as pseudonyms; otherwise None."""
+        if not re.fullmatch(r"[A-Za-z]+(\.[A-Za-z]+)*", self.expr):
             return None
-        path = tuple(self.expr.split(".")[1:])
+        parts = tuple(self.expr.split("."))
+        path = parts[1:] if self.resource_type else parts
+        if path == ("id",):
+            return "id"
+        if not self.resource_type:
+            return "identifier" if path[-1] == "identifier" else None  # Identifier on every resource
         value_type = r4.element_type(self.resource_type, path)
         if value_type == "Identifier":
             return "identifier"
@@ -204,6 +216,7 @@ class Screen:
         self.skip_keys = set(pat.get("skip_keys", []))
         self.skip_types = set(pat.get("skip_types", []))
         self.skip_resources = set(rules.get("skip_resources", []))
+        self.opaque_ids = re.compile(rules["opaque_ids"]) if rules.get("opaque_ids") else None
         self.url_hosts = tuple(pat.get("url_hosts", []))
         self.pattern_action = pat.get("action", "stop")
         self.date_skip = set(rules.get("dates", {}).get("skip_under", []))
@@ -227,16 +240,19 @@ class Screen:
             return
 
         for el in self.elements:
-            if el.resource_type not in (None, rt):
+            if not el.applies_to(rt):
                 continue
             values = el.values(res)
             if not values:
                 continue
-            if self.source and el.kind and all(self.source.is_pseudonym(rt, el.kind, v) for v in values):
-                # Every value is a pseudonym the source confirmed: reported, not a finding.
+            kinds = {self.passes(el, rt, v) for v in values}
+            if None in kinds:
+                add((el.path,), el.rule["id"], "", el.rule["action"])
+            elif "pseudonym" in kinds:
+                # Every value is a confirmed pseudonym or opaque: reported, not a finding.
                 add((el.path,), el.rule["id"], self.source.id, "pseudonym")
             else:
-                add((el.path,), el.rule["id"], "", el.rule["action"])
+                add((el.path,), el.rule["id"], "uuid", "opaque")
 
         for path, parent, key, value in leaves(res):
             if value is None or value == "" or key == "resourceType":
@@ -269,6 +285,17 @@ class Screen:
                     add(path, f"extension:{d['url']}", "", verdict)
                 elif verdict is None and any(k in IDENTIFYING_VALUES for k in valued):
                     add(path, "extension:unknown", d["url"], "review")
+
+    def passes(self, el, rt, value):
+        """Why a value of an element rule is not a finding: "opaque" (a random id such as a
+        UUID, for rules marked opaque), "pseudonym" (confirmed by the source), or None."""
+        if el.opaque and self.opaque_ids:
+            text = value.get("value") if el.kind == "identifier" and isinstance(value, dict) else value
+            if isinstance(text, str) and self.opaque_ids.fullmatch(text):
+                return "opaque"
+        if self.source and el.kind and self.source.is_pseudonym(rt, el.kind, value):
+            return "pseudonym"
+        return None
 
     def file(self, path):
         found, first = Counter(), {}

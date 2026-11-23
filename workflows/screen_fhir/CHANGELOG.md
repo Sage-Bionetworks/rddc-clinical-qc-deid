@@ -28,3 +28,7 @@ Release tags use `screen_fhir/v<version>`.
   source-specific extensions, from `assets/sources/<sourceId>/fhir_screen.yaml` or
   `--source_config`. Passing values are reported with action `pseudonym`. Configs for the
   MIMIC-IV FHIR demo and the FDNA mock package are included.
+- Check the resource ids of people and clinicians, and the identifiers on every other
+  resource (visit, accession, order and claim numbers). UUIDs pass as `opaque`; other
+  values must be confirmed pseudonyms (`id_pattern`, or `identifier_system` and
+  `identifier_pattern`, which can now list several systems).

@@ -6,6 +6,19 @@ pseudonyms:
   identifier_system: http://mimic.mit.edu/fhir/mimic/identifier/patient
   identifier_pattern: '[0-9]{8}'
   name_pattern: 'Patient_[0-9]{8}'
+- resources: [Encounter]
+  note: hadm_id, ED stay_id and ICU stay_id.
+  identifier_system: [http://mimic.mit.edu/fhir/mimic/identifier/encounter-hosp, http://mimic.mit.edu/fhir/mimic/identifier/encounter-ed, http://mimic.mit.edu/fhir/mimic/identifier/encounter-icu]
+  identifier_pattern: '[0-9]{8}'
+- resources: [MedicationRequest, MedicationDispense, Observation, Specimen]
+  note: MIMIC row ids (pharmacy, lab, microbiology and specimen events).
+  identifier_system: [http://mimic.mit.edu/fhir/mimic/identifier/medication-request-phid, http://mimic.mit.edu/fhir/mimic/identifier/medication-dispense, http://mimic.mit.edu/fhir/mimic/identifier/observation-labevents,
+                      http://mimic.mit.edu/fhir/mimic/identifier/observation-micro-susc, http://mimic.mit.edu/fhir/mimic/identifier/specimen-lab, http://mimic.mit.edu/fhir/mimic/identifier/specimen-micro]
+  identifier_pattern: '[0-9]{1,8}'
+- resources: [MedicationRequest]
+  note: poe_id, subject_id-sequence.
+  identifier_system: http://mimic.mit.edu/fhir/mimic/identifier/medication-request-poe
+  identifier_pattern: '[0-9]{8}-[0-9]{1,4}'
 extensions:
   # Lab order priority: STAT or ROUTINE.
   http://mimic.mit.edu/fhir/mimic/StructureDefinition/lab-priority: ok

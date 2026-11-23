@@ -28,6 +28,11 @@ skip_resources: [CapabilityStatement, StructureDefinition, ImplementationGuide, 
                  GraphDefinition, ExampleScenario, CodeSystem, ValueSet, ConceptMap, NamingSystem,
                  TerminologyCapabilities, Questionnaire]
 
+# Random identifiers carry nothing about a person: a UUID resource id or identifier value
+# (optionally urn:uuid:) passes rules marked `opaque`, reported with action opaque. Any
+# other value must be a pseudonym the source confirmed (assets/sources/README.md).
+opaque_ids: '(urn:uuid:)?[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
+
 elements:
 - id: patient_direct
   action: stop
@@ -83,6 +88,30 @@ elements:
   - Location.telecom
   - Location.address
   - Location.position
+- id: person_resource_ids
+  # A source that uses the MRN as the resource id puts it in every reference as well.
+  action: stop
+  opaque: true
+  paths:
+  - Patient.id
+  - RelatedPerson.id
+  - Person.id
+- id: provider_resource_ids
+  action: provider
+  opaque: true
+  paths:
+  - Practitioner.id
+  - PractitionerRole.id
+- id: other_identifiers
+  # Visit, accession, order, claim, plan and device numbers on any other resource. The
+  # resources with their own identifier rules are excepted, and so are products, whose
+  # identifiers are product codes (NDC).
+  action: stop
+  opaque: true
+  except: [Patient, RelatedPerson, FamilyMemberHistory, Practitioner, PractitionerRole, Organization,
+           Location, Medication, Substance]
+  paths:
+  - identifier
 - id: narrative
   action: free_text
   paths:
