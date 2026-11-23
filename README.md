@@ -65,9 +65,12 @@ to check screen image tags against their Python package versions.
 Release each workflow separately with a tag such as `screen_fhir/v0.1.0`:
 
 1. Update its changelog, package version and module image tags. If the shared package
-   changes version, update each screen's dependency too.
-2. Run the tests and build the images. Tag the merge commit and push the matching images,
-   including the shared intake image when it changes.
+   changes version, update each screen's dependency too. If the intake image changes,
+   update `INTAKE_IMAGE` in the Makefile and its module tag.
+2. Run the tests and merge. Tag the merge commit: `intake/vX.Y.Z` first when the intake
+   image changed, then `screen_<std>/vX.Y.Z`. The `image` workflow checks the versions,
+   runs the tests and publishes the image for each tag. It never overwrites a published
+   tag, and a screen release fails if the intake image its modules pin is not published.
 3. Update the Cirro configuration to use the release tag.
 
 The Cirro configuration uses repository ID `clinical_qc_deid` and points to

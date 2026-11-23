@@ -7,6 +7,8 @@ NXF_VERSION      ?= 26.10.5
 export NXF_HOME  ?= $(CURDIR)/.tools/nxf-home
 export NXF_VER   := $(NXF_VERSION)
 NEXTFLOW         := $(CURDIR)/.tools/nextflow
+# The shared checksum image. Its modules pin the same tag (make check-image-tags).
+INTAKE_IMAGE     := ghcr.io/sage-bionetworks/rddc-intake:0.1.0
 
 # One package and image per screen: containers/rddc-<std>-screen, image
 # ghcr.io/sage-bionetworks/rddc-<std>-screen:<version>, workflow workflows/screen_<std>.
@@ -21,7 +23,7 @@ image_of          = ghcr.io/sage-bionetworks/rddc-$(1)-screen:$(call version_of,
 run_of            = $(NEXTFLOW) run . -main-script workflows/screen_$(1)/main.nf
 , := ,
 
-.PHONY: image-intake help tools venv py-test image image-test lint stub nf-test-local nf-test fixtures check-image-tags check-shared
+.PHONY: image-intake intake-image help tools venv py-test image image-test lint stub nf-test-local nf-test fixtures check-image-tags check-shared
 
 help:   ## list targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | sed 's/:.*## /\t/' | expand -t 18
@@ -52,7 +54,7 @@ image-test:   ## unit tests in the images (fixtures and source configs mounted r
 	        -v $(CURDIR)/assets/sources:/sources:ro -e RDDC_SOURCES=/sources rddc-$(s)-screen:test &&) true
 
 image-intake:   ## build the shared checksum image
-	docker build -t ghcr.io/sage-bionetworks/rddc-intake:0.1.0 -f containers/rddc-intake/Dockerfile .
+	docker build -t $(INTAKE_IMAGE) -f containers/rddc-intake/Dockerfile .
 
 lint: tools   ## nextflow lint
 	$(NEXTFLOW) lint $(wildcard workflows) modules subworkflows
@@ -86,12 +88,17 @@ nf-test: tools image   ## both fixture batches of each screen through Nextflow i
 
 fixtures: $(addprefix fixtures-,$(SCREENS))   ## rebuild fixtures for the installed standards
 
-check-image-tags:   ## every module pins the image version in its screen's pyproject.toml
+check-image-tags:   ## modules pin each screen's pyproject version, and the intake image INTAKE_IMAGE
 	@for s in $(SCREENS); do \
 	    v=$$(sed -n 's/^version = "\(.*\)"/\1/p' containers/rddc-$$s-screen/pyproject.toml); \
 	    bad=$$(grep -rho "rddc-$$s-screen:[0-9A-Za-z.]*" modules | sort -u | grep -v ":$$v$$" || true); \
 	    if [ -n "$$bad" ]; then echo "modules pin $$bad, pyproject says $$v"; exit 1; fi; \
 	done
+	@bad=$$(grep -rho "ghcr.io/sage-bionetworks/rddc-intake:[0-9A-Za-z.]*" modules | sort -u | grep -vx "$(INTAKE_IMAGE)" || true); \
+	if [ -n "$$bad" ]; then echo "modules pin $$bad, the Makefile says $(INTAKE_IMAGE)"; exit 1; fi
+
+intake-image:   ## print the intake image tag (for CI)
+	@echo $(INTAKE_IMAGE)
 
 check-shared: venv   ## test the shared detector and QC package
 	.venv/bin/python -m pytest -q shared/tests

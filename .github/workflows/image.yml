@@ -1,0 +1,105 @@
+# Build and publish an image when its release tag is pushed.
+#
+# screen_<std>/vX.Y.Z publishes ghcr.io/sage-bionetworks/rddc-<std>-screen:X.Y.Z. X.Y.Z must
+# be the version in containers/rddc-<std>-screen/pyproject.toml, which is the tag the
+# modules pin (make check-image-tags), and the intake image the modules pin must already
+# be published.
+#
+# intake/vX.Y.Z publishes ghcr.io/sage-bionetworks/rddc-intake:X.Y.Z, which must be
+# INTAKE_IMAGE in the Makefile. Publish it before a screen release that needs it.
+#
+# A published tag is never overwritten: release a new version instead.
+name: image
+
+on:
+  push:
+    tags: ['screen_*/v*', 'intake/v*']
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: The image, from the tag
+        id: image
+        run: |
+          kind="${GITHUB_REF_NAME%%/*}"
+          version="${GITHUB_REF_NAME#*/v}"
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::tag $GITHUB_REF_NAME is not <name>/vX.Y.Z"; exit 1
+          fi
+          intake=$(make -s intake-image)
+          if [ "$kind" = intake ]; then
+            image=ghcr.io/sage-bionetworks/rddc-intake
+            if [ "$intake" != "$image:$version" ]; then
+              echo "::error::tag $GITHUB_REF_NAME would publish $image:$version, but the Makefile pins $intake"; exit 1
+            fi
+            echo "dockerfile=containers/rddc-intake/Dockerfile" >> "$GITHUB_OUTPUT"
+            echo "target=" >> "$GITHUB_OUTPUT"
+          else
+            std="${kind#screen_}"
+            dir="containers/rddc-$std-screen"
+            if [ "$kind" = "$std" ] || [ ! -f "$dir/Dockerfile" ]; then
+              echo "::error::tag $GITHUB_REF_NAME names no screen ($dir)"; exit 1
+            fi
+            have=$(sed -n 's/^version = "\(.*\)"/\1/p' "$dir/pyproject.toml")
+            if [ "$have" != "$version" ]; then
+              echo "::error::tag $GITHUB_REF_NAME is version $version, but $dir/pyproject.toml says $have"; exit 1
+            fi
+            image="ghcr.io/sage-bionetworks/rddc-$std-screen"
+            echo "dockerfile=$dir/Dockerfile" >> "$GITHUB_OUTPUT"
+            echo "target=runtime" >> "$GITHUB_OUTPUT"
+            echo "std=$std" >> "$GITHUB_OUTPUT"
+          fi
+          echo "kind=$kind" >> "$GITHUB_OUTPUT"
+          echo "ref=$image:$version" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "intake=$intake" >> "$GITHUB_OUTPUT"
+
+      - name: Modules pin the released versions
+        run: make check-image-tags
+
+      - uses: actions/setup-python@v5
+        if: steps.image.outputs.kind != 'intake'
+        with:
+          python-version: "3.12"
+
+      - name: Tests
+        if: steps.image.outputs.kind != 'intake'
+        run: make py-test SCREENS=${{ steps.image.outputs.std }}
+
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: The tag is not published yet, and the intake image is
+        env:
+          REF: ${{ steps.image.outputs.ref }}
+          INTAKE: ${{ steps.image.outputs.intake }}
+          KIND: ${{ steps.image.outputs.kind }}
+        run: |
+          if docker manifest inspect "$REF" > /dev/null 2>&1; then
+            echo "::error::$REF is already published; release a new version"; exit 1
+          fi
+          if [ "$KIND" != intake ] && ! docker manifest inspect "$INTAKE" > /dev/null 2>&1; then
+            echo "::error::the modules pin $INTAKE, which is not published; push its intake/v tag first"; exit 1
+          fi
+
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ${{ steps.image.outputs.dockerfile }}
+          target: ${{ steps.image.outputs.target }}
+          push: true
+          tags: ${{ steps.image.outputs.ref }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ steps.image.outputs.version }}
