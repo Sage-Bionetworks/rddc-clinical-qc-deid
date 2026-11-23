@@ -7,7 +7,7 @@ name = "rddc-fhir-screen"
 version = "0.1.0"
 description = "Identifier screen for FHIR R4 files at RDDC intake"
 requires-python = ">=3.11"
-dependencies = ["rddc-screen-common==0.1.0", "pyyaml>=6"]
+dependencies = ["rddc-screen-common==0.1.0", "pyyaml>=6", "fhirpathpy>=2.2.4,<3"]
 
 [project.optional-dependencies]
 test = ["pytest>=8"]

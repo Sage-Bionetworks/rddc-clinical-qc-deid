@@ -4,15 +4,26 @@ Reads NDJSON (optionally gzipped), a Bundle or a single resource, walks every re
 (Bundle entries and contained resources too) and reports findings by rule. Findings
 never include the values found: only the resource type, the element path, the rule or
 detector, and how many values matched.
+
+Element rules are FHIRPath expressions, evaluated with the R4 model. The checks that apply
+to every value (patterns, dates, keys, reference display text and extensions) walk the JSON
+tree instead: they are about ten times faster that way than with descendants().
 """
 
 import gzip
 import json
+import re
 from collections import Counter
 from dataclasses import dataclass
 from importlib import resources as pkg
 
+import fhirpathpy
 import yaml
+from antlr4 import CommonTokenStream, InputStream, Token
+from antlr4.error.ErrorListener import ErrorListener
+from fhirpathpy.models import models as fhir_models
+from fhirpathpy.parser.generated.FHIRPathLexer import FHIRPathLexer
+from fhirpathpy.parser.generated.FHIRPathParser import FHIRPathParser
 
 from rddc_screen_common import detectors
 
@@ -20,6 +31,10 @@ PROPERTY = {"stop": "direct_identifiers", "dates": "dates", "zip_codes": "zip_co
 # The properties this screen is authoritative for. The orchestrator replaces a file's
 # predicted values of these with the screen's report.
 CHECKED = sorted(PROPERTY.values())
+R4 = fhir_models["r4"]
+# Extension values that can carry identity, or a whole document.
+IDENTIFYING_VALUES = ("valueString", "valueHumanName", "valueAddress", "valueContactPoint", "valueIdentifier",
+                      "valueAttachment")
 
 
 def load_rules(path=None):
@@ -102,13 +117,69 @@ def reference_type(ref):
     return parts[-2] if len(parts) >= 2 else None
 
 
+def root_type(expr):
+    """The resource type an expression starts with (Patient.name), or None for an expression
+    that applies to every resource (note.text)."""
+    m = re.match(r"([A-Z][A-Za-z0-9]*)(?:\.|$)", expr)
+    return m.group(1) if m else None
+
+
+def report_path(expr):
+    """The expression as written in findings: without its resource type or backticks."""
+    rt = root_type(expr)
+    return (expr[len(rt) + 1:] if rt else expr).replace("`", "")
+
+
+class _RaiseOnError(ErrorListener):
+    def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
+        raise ValueError(f"column {column}: {msg}")
+
+
+def check_syntax(expr):
+    """Parse strictly. fhirpathpy's own parser recovers from syntax errors silently, so
+    `Patient..name` or `Patient.name)` would compile and match something else, or nothing."""
+    lexer = FHIRPathLexer(InputStream(expr))
+    lexer.removeErrorListeners()
+    lexer.addErrorListener(_RaiseOnError())
+    tokens = CommonTokenStream(lexer)
+    parser = FHIRPathParser(tokens)
+    parser.removeErrorListeners()
+    parser.addErrorListener(_RaiseOnError())
+    parser.expression()
+    if tokens.LA(1) != Token.EOF:
+        raise ValueError("unexpected text after the expression")
+
+
+def present(value):
+    return not (value is None or (isinstance(value, (str, list, dict)) and not value))
+
+
+class Element:
+    """One FHIRPath expression of an element rule."""
+
+    def __init__(self, rule, expr):
+        self.rule, self.expr = rule, expr
+        self.resource_type = root_type(expr)
+        self.path = report_path(expr)
+        try:
+            check_syntax(expr)
+            self.fn = fhirpathpy.compile(expr, model=R4)
+            # Unknown functions and wrong arities only fail on evaluation.
+            self.fn({"resourceType": self.resource_type or "Basic"})
+        except Exception as exc:  # fhirpathpy raises bare Exceptions
+            raise ValueError(f"rule {rule['id']}: invalid FHIRPath {expr!r}: {exc}") from exc
+
+    def matches(self, res):
+        return any(present(v) for v in self.fn(res))
+
+
 class Screen:
     def __init__(self, rules, provider_policy="stop"):
         if provider_policy not in ("stop", "review"):
             raise ValueError("provider_policy must be stop or review")
         self.rules = rules
         self.provider_policy = provider_policy
-        self.elements = [(r, tuple(tuple(p.split(".")) for p in r["paths"])) for r in rules.get("elements", [])]
+        self.elements = [Element(r, expr) for r in rules.get("elements", []) for expr in r["paths"]]
         pat = rules.get("patterns", {})
         self.skip_keys = set(pat.get("skip_keys", []))
         self.url_hosts = tuple(pat.get("url_hosts", []))
@@ -122,26 +193,19 @@ class Screen:
         rt = res.get("resourceType", "?")
         res = {k: v for k, v in res.items() if k != "contained"}  # screened as resources of their own
 
-        seen = set()
-
-        def add(path, rule, detector, action, once=False):
-            """Count a finding; once: at most once per resource (a matched element)."""
+        def add(path, rule, detector, action):
+            """Count a finding. An element rule counts once per resource it matches."""
             k = Key(rt, ".".join(path), rule, detector, self.action(action))
-            if once:
-                if k in seen:
-                    return
-                seen.add(k)
             found[k] += 1
             first.setdefault(k, n)
+
+        for el in self.elements:
+            if el.resource_type in (None, rt) and el.matches(res):
+                add((el.path,), el.rule["id"], "", el.rule["action"])
 
         for path, parent, key, value in leaves(res):
             if value is None or value == "" or key == "resourceType":
                 continue
-            for rule, paths in self.elements:
-                if rule["resources"] == ["*"] or rt in rule["resources"]:
-                    for p in paths:
-                        if path[:len(p)] == p:
-                            add(p, rule["id"], "", rule["action"], once=True)
             if key in self.rules.get("keys", {}):
                 add(path, f"key:{key}", "", self.rules["keys"][key])
             if not isinstance(value, str):
@@ -167,8 +231,7 @@ class Screen:
                 valued = [k for k in d if k.startswith("value")]
                 if verdict in ("stop", "review", "free_text"):
                     add(path, f"extension:{d['url']}", "", verdict)
-                elif verdict is None and any(k in ("valueString", "valueHumanName", "valueAddress", "valueContactPoint",
-                                                     "valueIdentifier") for k in valued):
+                elif verdict is None and any(k in IDENTIFYING_VALUES for k in valued):
                     add(path, "extension:unknown", d["url"], "review")
 
     def file(self, path):

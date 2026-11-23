@@ -16,3 +16,7 @@ Release tags use `screen_fhir/v<version>`.
 - Write `results.json` as a list of `{file, properties}` objects, plus `findings.tsv`,
   `summary.tsv` and `intake/intake.tsv`. Findings omit matched values.
 - Fail the run if a FHIR file cannot pass intake.
+- Write element rules as FHIRPath (R4) expressions. Rules are checked against the R4
+  model in tests and parsed strictly at load, so a misspelt rule fails instead of matching
+  nothing. Attachments in Media, Communication, QuestionnaireResponse answers and
+  extensions are now reported for review.

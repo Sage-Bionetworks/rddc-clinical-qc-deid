@@ -8,44 +8,105 @@
 #   free_text  prose to de-identify (deid_fhir)      -> free_text
 #   review     a finding for a curator, no property
 #
-# Paths are dot paths from the resource root; arrays are walked through. A rule matches
-# every non-empty value at or below its path.
+# Element rules are lists of FHIRPath (R4) expressions. An expression that returns a
+# non-empty value counts once for the resource it was evaluated on. An expression
+# that starts with a resource type (Patient.name) applies to that type only; one that does
+# not (note.text) applies to every resource. Choice elements need ofType():
+# value.ofType(string), not valueString. Quote FHIRPath keywords used as element names with
+# backticks: text.`div`. tests/test_screen.py checks every expression against the R4 model,
+# because a misspelt path matches nothing rather than failing.
+#
+# The checks below `elements` apply to every value in a resource and are not FHIRPath.
 version: 0.1.0
 
 elements:
 - id: patient_direct
-  resources: [Patient]
-  paths: [name, telecom, address.line, address.city, address.district, address.text, address.extension,
-          identifier, photo, contact, link]
   action: stop
+  paths:
+  - Patient.name
+  - Patient.telecom
+  - Patient.address.line
+  - Patient.address.city
+  - Patient.address.district
+  - Patient.address.text
+  - Patient.address.extension
+  - Patient.identifier
+  - Patient.photo
+  - Patient.contact
+  - Patient.link
 - id: related_person_direct
-  resources: [RelatedPerson, FamilyMemberHistory]
-  paths: [name, telecom, address.line, address.city, address.district, address.text, identifier, photo]
   action: stop
+  paths:
+  - RelatedPerson.name
+  - RelatedPerson.telecom
+  - RelatedPerson.address.line
+  - RelatedPerson.address.city
+  - RelatedPerson.address.district
+  - RelatedPerson.address.text
+  - RelatedPerson.identifier
+  - RelatedPerson.photo
+  - FamilyMemberHistory.name
+  - FamilyMemberHistory.identifier
 - id: device_identifiers
-  resources: [Device]
-  paths: [udiCarrier, serialNumber, distinctIdentifier]
   action: stop
+  paths:
+  - Device.udiCarrier
+  - Device.serialNumber
+  - Device.distinctIdentifier
 - id: provider_identity
-  resources: [Practitioner, PractitionerRole, Organization, Location]
-  paths: [name, alias, identifier, telecom, address, position, photo]
   action: provider
+  paths:
+  - Practitioner.name
+  - Practitioner.identifier
+  - Practitioner.telecom
+  - Practitioner.address
+  - Practitioner.photo
+  - PractitionerRole.identifier
+  - PractitionerRole.telecom
+  - Organization.name
+  - Organization.alias
+  - Organization.identifier
+  - Organization.telecom
+  - Organization.address
+  - Location.name
+  - Location.alias
+  - Location.identifier
+  - Location.telecom
+  - Location.address
+  - Location.position
 - id: narrative
-  resources: ["*"]
-  paths: [text.div]
   action: free_text
+  paths:
+  - text.`div`
 - id: free_text_elements
-  resources: ["*"]
-  paths: [note.text, valueString, component.valueString, interpretation.text, conclusion, code.text,
-          reaction.description, dosageInstruction.text, dosageInstruction.patientInstruction,
-          item.answer.valueString, item.item.answer.valueString, description, comment]
   action: free_text
+  paths:
+  - note.text
+  - value.ofType(string)
+  - component.value.ofType(string)
+  - interpretation.text
+  - conclusion
+  - code.text
+  - reaction.description
+  - dosageInstruction.text
+  - dosageInstruction.patientInstruction
+  - QuestionnaireResponse.repeat(item).answer.value.ofType(string)
+  - description
+  - comment
 - id: attachments
   # Whole documents and images inside a resource: extracted and routed by content type
-  # (inventory 4.2 and gap 10), not screened here.
-  resources: ["*"]
-  paths: [content.attachment.data, content.attachment.url, presentedForm, data, valueAttachment]
+  # (inventory 4.2 and gap 10), not screened here. Attachments in extensions are reported
+  # as unknown extensions.
   action: review
+  paths:
+  - DocumentReference.content.attachment.data
+  - DocumentReference.content.attachment.url
+  - DiagnosticReport.presentedForm
+  - Media.content
+  - Binary.data
+  - Communication.payload.content.ofType(Attachment)
+  - CommunicationRequest.payload.content.ofType(Attachment)
+  - QuestionnaireResponse.repeat(item).answer.value.ofType(Attachment)
 
 # Keys matched anywhere in a resource.
 keys:
@@ -60,8 +121,9 @@ reference_display:
 # A conditional reference to a clinician or site embeds its identifier (an NPI).
 reference_provider_identifier: provider
 
-# Extensions by URL. A string-, name-, address- or contact-valued extension with an URL not
-# listed here is reported for review (unknown extension).
+# Extensions by URL. An extension whose URL is not listed here and whose value is a string,
+# name, address, contact point, identifier or attachment is reported for review (unknown
+# extension).
 extensions:
   http://hl7.org/fhir/StructureDefinition/patient-mothersMaidenName: stop
   http://hl7.org/fhir/StructureDefinition/patient-birthPlace: stop

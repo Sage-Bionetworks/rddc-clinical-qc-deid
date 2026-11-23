@@ -49,6 +49,9 @@ the batch, does fail the run because it could not be screened.
 
 The [FHIR rules](../../containers/rddc-fhir-screen/src/rddc_fhir_screen/rules.yaml)
 come from section 4.2 of `rddc-source-map/qc_deid_inventory.md`.
+Element rules, which name fields of particular resources, are FHIRPath (R4) expressions,
+so the same paths can drive de-identification. Checks that apply to every value, such as
+patterns, dates, reference display text and extensions, walk each resource directly.
 
 In the table below, `stop` flags a direct identifier. “Provider policy” uses
 `--provider_policy`. The other actions flag data for later work.
@@ -68,7 +71,7 @@ In the table below, `stop` flags a direct identifier. “Provider policy” uses
 | Narrative (`text.div`), notes, `valueString`, `code.text` and other configured prose fields | `free_text` |
 | Full dates outside `meta` | `dates` |
 | `postalCode` | `zip_codes` |
-| Attachment fields, including `content.attachment`, `presentedForm`, `Binary.data` and `valueAttachment` | `review` |
+| Attachments: DocumentReference content, `DiagnosticReport.presentedForm`, `Media.content`, `Binary.data`, Communication payloads, QuestionnaireResponse answers and extensions | `review` |
 
 Pattern checks skip fields listed in `patterns.skip_keys`, such as codes, systems and
 reference URLs. Reference display text is handled by the reference checks above.
