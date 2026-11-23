@@ -1,4 +1,4 @@
-# Identifier screen rules for OMOP CDM 5.4 (rddc-source-map/qc_deid_inventory.md, section 4.1).
+# Identifier screen rules for OMOP CDM 5.4 (RDDC's QC and de-identification inventory, section 4.1).
 #
 # Actions, and the data property each one reports to the orchestrator (as in screen_fhir):
 #   stop       direct identifier                     -> direct_identifiers (quarantines the batch)

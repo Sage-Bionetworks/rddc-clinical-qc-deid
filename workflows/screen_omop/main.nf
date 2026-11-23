@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 /*
  * screen_omop: check deposited OMOP CDM 5.4 tables for identifiers.
- * See rddc-source-map/qc_deid_inventory.md, section 4.1.
+ * The rules come from RDDC's QC and de-identification inventory, section 4.1.
  *
  * Input: the batch's sidecar (--sidecar, _sidecar.json). Every OmopTableFile in it is
  * screened (CSV, TSV, gzipped or not, or Parquet), by its cdmTable; other files are listed in

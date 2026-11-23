@@ -60,7 +60,7 @@ fail the run because it could not be screened.
 ## Checks
 
 The [OMOP rules](../../containers/rddc-omop-screen/src/rddc_omop_screen/rules.yaml)
-come from section 4.1 of `rddc-source-map/qc_deid_inventory.md`. Column checks apply to
+come from section 4.1 of RDDC's QC and de-identification inventory, an internal planning document. Column checks apply to
 non-empty values.
 
 In the table below, `stop` flags a direct identifier. “Provider policy” uses
