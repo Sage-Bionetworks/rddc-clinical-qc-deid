@@ -7,16 +7,16 @@ Commons (RDDC). Checks report findings and leave the source data unchanged.
 OMOP CDM 5.4 support is planned. Full profile, terminology and relational QC are also
 planned; the current QC checks file structure.
 
-## How it runs
+## How it works
 
-The RDDC orchestrator starts workflows on Cirro in the `rddc-processing` project.
+The RDDC orchestrator starts workflows on Cirro in the processing project.
 Each workflow has its own entry point, container and release tag.
 
 The order is intake, structural QC, then identifier screening. Every selected file must
 pass QC before screening starts. A QC failure stops the run and produces `qc/qc.tsv`.
-A direct identifier tells the orchestrator to quarantine the whole batch for a curator.
+A direct identifier tells the orchestrator to quarantine the whole batch for data manager review (and potential removal).
 A screen verdict of `pass` means no direct identifiers were found under its rules;
-dates, ZIP codes, free text and review findings may still need attention.
+dates, ZIP codes, free text and review findings need further processing (to be developed) and attention.
 
 ## Development
 
