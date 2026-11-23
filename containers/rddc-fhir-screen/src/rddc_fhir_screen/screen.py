@@ -27,6 +27,7 @@ from fhirpathpy.parser.generated.FHIRPathParser import FHIRPathParser
 
 from rddc_screen_common import detectors
 
+from . import r4
 from .r4 import element_type
 
 PROPERTY = {"stop": "direct_identifiers", "dates": "dates", "zip_codes": "zip_codes", "free_text": "free_text"}
@@ -163,6 +164,7 @@ class Element:
         self.rule, self.expr = rule, expr
         self.resource_type = root_type(expr)
         self.path = report_path(expr)
+        self.kind = self._kind()
         try:
             check_syntax(expr)
             self.fn = fhirpathpy.compile(expr, model=R4)
@@ -171,16 +173,32 @@ class Element:
         except Exception as exc:  # fhirpathpy raises bare Exceptions
             raise ValueError(f"rule {rule['id']}: invalid FHIRPath {expr!r}: {exc}") from exc
 
-    def matches(self, res):
-        return any(present(v) for v in self.fn(res))
+    def _kind(self):
+        """"identifier" or "name" when the expression selects identifiers or names, which a
+        source can confirm as pseudonyms; otherwise None."""
+        if not self.resource_type or not re.fullmatch(r"[A-Za-z]+(\.[A-Za-z]+)+", self.expr):
+            return None
+        path = tuple(self.expr.split(".")[1:])
+        value_type = r4.element_type(self.resource_type, path)
+        if value_type == "Identifier":
+            return "identifier"
+        if value_type == "HumanName" or (value_type == "string" and path[-1] in ("name", "alias")):
+            return "name"
+        return None
+
+    def values(self, res):
+        return [v for v in self.fn(res) if present(v)]
 
 
 class Screen:
-    def __init__(self, rules, provider_policy="stop"):
+    def __init__(self, rules, provider_policy="stop", source=None):
+        """source: the batch source's confirmed pseudonyms and extensions (source.Source)."""
         if provider_policy not in ("stop", "review"):
             raise ValueError("provider_policy must be stop or review")
         self.rules = rules
         self.provider_policy = provider_policy
+        self.source = source
+        self.extensions = {**(rules.get("extensions") or {}), **(source.extensions if source else {})}
         self.elements = [Element(r, expr) for r in rules.get("elements", []) for expr in r["paths"]]
         pat = rules.get("patterns", {})
         self.skip_keys = set(pat.get("skip_keys", []))
@@ -209,7 +227,15 @@ class Screen:
             return
 
         for el in self.elements:
-            if el.resource_type in (None, rt) and el.matches(res):
+            if el.resource_type not in (None, rt):
+                continue
+            values = el.values(res)
+            if not values:
+                continue
+            if self.source and el.kind and all(self.source.is_pseudonym(rt, el.kind, v) for v in values):
+                # Every value is a pseudonym the source confirmed: reported, not a finding.
+                add((el.path,), el.rule["id"], self.source.id, "pseudonym")
+            else:
                 add((el.path,), el.rule["id"], "", el.rule["action"])
 
         for path, parent, key, value in leaves(res):
@@ -226,7 +252,7 @@ class Screen:
                 for d in detectors.scan(value, self.url_hosts):
                     add(path, "pattern", d, self.pattern_action)
         rd = self.rules.get("reference_display", {})
-        exts = self.rules.get("extensions", {})
+        exts = self.extensions
         for path, d in dicts(res):
             if "reference" in d:
                 target = reference_type(d["reference"])

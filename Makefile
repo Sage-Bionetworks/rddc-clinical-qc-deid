@@ -46,9 +46,10 @@ py-test: venv check-shared   ## unit tests and the fixture batches, no Docker
 image: image-intake   ## build each screen image with the tag its modules pin
 	$(foreach s,$(SCREENS),docker build --target runtime -t $(call image_of,$(s)) -f $(call dir_of,$(s))/Dockerfile . &&) true
 
-image-test:   ## unit tests in the images (fixtures mounted read-only, no network)
+image-test:   ## unit tests in the images (fixtures and source configs mounted read-only, no network)
 	$(foreach s,$(SCREENS),docker build --target test -t rddc-$(s)-screen:test -f $(call dir_of,$(s))/Dockerfile . && \
-	    docker run --rm --network none -v $(CURDIR)/tests/screen_$(s):/fixtures:ro -e RDDC_FIXTURES=/fixtures rddc-$(s)-screen:test &&) true
+	    docker run --rm --network none -v $(CURDIR)/tests/screen_$(s):/fixtures:ro -e RDDC_FIXTURES=/fixtures \
+	        -v $(CURDIR)/assets/sources:/sources:ro -e RDDC_SOURCES=/sources rddc-$(s)-screen:test &&) true
 
 image-intake:   ## build the shared checksum image
 	docker build -t ghcr.io/sage-bionetworks/rddc-intake:0.1.0 -f containers/rddc-intake/Dockerfile .

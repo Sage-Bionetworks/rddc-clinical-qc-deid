@@ -9,6 +9,7 @@ conversion to OMOP. It checks file structure before screening, reports findings 
 | --- | --- |
 | `--sidecar` | Required. The batch's `_sidecar.json`, which lists its files. The workflow screens every FHIR file listed, including NDJSON (plain or gzipped), Bundles and single resources. On Cirro, the preprocessing script finds the sidecar in the input dataset. |
 | `--provider_policy` | How to handle clinician and site identity. `stop` (default) treats names and identifiers in Practitioner, PractitionerRole, Organization, Location and references to them as direct identifiers. `review` reports those findings for a curator. Choose the policy for each source. |
+| `--source_config` | Optional. A directory with the source's `fhir_screen.yaml`. By default the workflow uses `assets/sources/<sourceId>/` for the sidecar's `sourceId`, if it exists. |
 | `--outdir` | Required. Directory for the reports. Cirro supplies this path. |
 
 ## Structural QC
@@ -83,6 +84,21 @@ StructureDefinition, ImplementationGuide, CodeSystem and ValueSet, and Questionn
 describe data rather than hold it. `findings.tsv` counts them under rule
 `definition_resource` with action `skipped`, and they do not affect the verdict. The full
 list is `skip_resources` in the rules.
+
+## Source configs
+
+A source can confirm the pseudonyms it uses in place of identifiers and names, such as a
+study ID in `Patient.identifier` or a placeholder name. It can also list its own
+extensions. These are recorded in
+[`assets/sources/<sourceId>/fhir_screen.yaml`](../../assets/sources/README.md), and each
+source confirms them before its first deposit. A value passes only if it matches a
+confirmed pattern exactly: an identifier needs the confirmed system and a matching value,
+and a name needs every part to match. Identifiers and names that do not match are
+handled as usual. A value that passes appears in `findings.tsv` with action `pseudonym`
+and the source ID as detector. It adds no property and does not quarantine the batch.
+
+The source config's `source_id` must match the sidecar's `sourceId`. A source can add
+extension URLs but cannot change the actions set by the shared rules.
 
 ## Limits
 

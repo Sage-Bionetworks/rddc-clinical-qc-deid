@@ -8,15 +8,19 @@ process SCREEN_FHIR {
     input:
     tuple val(meta), path(data)
     val provider_policy
+    path source_rules, stageAs: 'source/*'   // the source's fhir_screen.yaml, or NO_FILE
 
     output:
     path "${meta.id}.findings.tsv", emit: findings
     path "${meta.id}.result.json",  emit: result
 
     script:
+    // Staged as source/<name>: compare the file name, not the staged path.
+    def source = source_rules.toString().tokenize('/').last() == 'NO_FILE' ? '' :
+        "--source-rules '${source_rules}' --source-id '${meta.batch.sourceId}'"
     """
     rddc-fhir-screen file '${data}' --file-id '${meta.urn}' --name '${meta.name}' \\
-        --provider-policy ${provider_policy} \\
+        --provider-policy ${provider_policy} ${source} \\
         --findings ${meta.id}.findings.tsv --result ${meta.id}.result.json
     """
 

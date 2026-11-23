@@ -22,6 +22,7 @@
 // nextflow.config.
 params.sidecar         = null     // _sidecar.json of the batch
 params.provider_policy = 'stop'   // clinician and site identity: stop (a direct identifier) or review
+params.source_config   = null     // directory with the source's fhir_screen.yaml; default assets/sources/<sourceId>
 
 include { SIDECAR_INTAKE } from '../../subworkflows/local/sidecar_intake/main.nf'
 include { SCREEN_FHIR    } from '../../modules/local/screen_fhir/main.nf'
@@ -73,6 +74,18 @@ workflow {
         true
     }
     ready = QC_FHIR.out.checked.combine(gate).map { meta, data, _passed -> [meta, data] }
-    SCREEN_FHIR(ready, params.provider_policy)
+
+    // The source's confirmed pseudonyms and extensions (assets/sources/README.md). A source
+    // without a config is screened with the shared rules only.
+    assets = "${projectDir}/../../assets"
+    source_rules = SIDECAR_INTAKE.out.batch.map { batch ->
+        def dir = params.source_config ? file(params.source_config) : file("${assets}/sources/${batch.sourceId}")
+        def config = dir.resolve('fhir_screen.yaml')
+        if (params.source_config && !config.exists()) {
+            error "--source_config ${params.source_config} has no fhir_screen.yaml"
+        }
+        config.exists() ? config : file("${assets}/NO_FILE")
+    }.first()
+    SCREEN_FHIR(ready, params.provider_policy, source_rules)
     SCREEN_REPORT(SCREEN_FHIR.out.result.collect(), SCREEN_FHIR.out.findings.collect())
 }

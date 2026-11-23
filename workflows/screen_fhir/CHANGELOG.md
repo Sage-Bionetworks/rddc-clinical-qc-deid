@@ -24,3 +24,7 @@ Release tags use `screen_fhir/v<version>`.
   `QuestionnaireResponse.questionnaire` and profile references.
 - Skip definition resources (conformance and terminology resources, and Questionnaire).
   `findings.tsv` counts them as `skipped` under rule `definition_resource`.
+- Let identifiers and names that match a source's confirmed pseudonyms pass, and add
+  source-specific extensions, from `assets/sources/<sourceId>/fhir_screen.yaml` or
+  `--source_config`. Passing values are reported with action `pseudonym`. Configs for the
+  MIMIC-IV FHIR demo and the FDNA mock package are included.

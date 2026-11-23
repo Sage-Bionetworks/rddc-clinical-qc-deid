@@ -7,15 +7,37 @@ from pathlib import Path
 import pytest
 from rddc_fhir_screen import r4
 from rddc_fhir_screen.screen import Screen, load_rules, properties, reference_type, root_type
+from rddc_fhir_screen.source import SourceConfigError, load_source
 
 FIXTURES = Path(os.environ.get("RDDC_FIXTURES", Path(__file__).resolve().parents[3] / "tests" / "screen_fhir"))
+SOURCES = Path(os.environ.get("RDDC_SOURCES", Path(__file__).resolve().parents[3] / "assets" / "sources"))
 
 
-def screen(resources, tmp_path, policy="stop"):
+def screen(resources, tmp_path, policy="stop", source=None):
     p = tmp_path / "x.ndjson"
     p.write_text("".join(json.dumps(r) + "\n" for r in resources))
-    _, found, _ = Screen(load_rules(), policy).file(str(p))
+    _, found, _ = Screen(load_rules(), policy, source).file(str(p))
     return found
+
+
+def source_config(tmp_path, text, source_id=None):
+    p = tmp_path / "fhir_screen.yaml"
+    p.write_text(text)
+    return load_source(str(p), load_rules(), source_id)
+
+
+PSEUDONYMS = """
+source_id: src-test
+pseudonyms:
+- resources: [Patient]
+  identifier_system: https://example.org/id/patient
+  identifier_pattern: 'P[0-9]{6}'
+  name_pattern: 'Patient_[0-9]{6}'
+- resources: [Organization]
+  name_pattern: 'Site [0-9]{2}'
+extensions:
+  https://example.org/StructureDefinition/priority: ok
+"""
 
 
 def rules_hit(found, action):
@@ -187,6 +209,80 @@ def test_skip_settings_name_r4_types():
     assert set(rules["skip_resources"]) <= r4.RESOURCES
     assert r4.element_type("StructureDefinition", ("differential", "element", "type", "targetProfile")) == "canonical"
     assert r4.element_type("Media", ("content", "url")) == "url"
+
+
+def test_confirmed_pseudonyms_pass(tmp_path):
+    src = source_config(tmp_path, PSEUDONYMS, "src-test")
+    patient = {"resourceType": "Patient", "id": "p1", "name": [{"family": "Patient_000123"}],
+               "identifier": [{"system": "https://example.org/id/patient", "value": "P000123"}]}
+    site = {"resourceType": "Organization", "id": "o1", "name": "Site 04"}
+    found = screen([patient, site], tmp_path, source=src)
+    assert properties(found) == []
+    assert rules_hit(found, "pseudonym") == {("Patient", "name", "patient_direct"),
+                                            ("Patient", "identifier", "patient_direct"),
+                                            ("Organization", "name", "provider_identity")}
+    assert {k.detector for k in found if k.action == "pseudonym"} == {"src-test"}
+    # Without the source config the same data is stopped.
+    assert "direct_identifiers" in properties(screen([patient, site], tmp_path))
+
+
+@pytest.mark.parametrize("patient", [
+    # An MRN beside the pseudonym, a value that does not match, the wrong system, a real given name.
+    {"identifier": [{"system": "https://example.org/id/patient", "value": "P000123"},
+                    {"system": "https://example.org/id/patient", "value": "MRN-55"}]},
+    {"identifier": [{"system": "https://example.org/id/patient", "value": "P000123x"}]},
+    {"identifier": [{"system": "https://hospital.example.org/mrn", "value": "P000123"}]},
+    {"identifier": [{"value": "P000123"}]},
+    {"name": [{"family": "Patient_000123", "given": ["Jane"]}]},
+    {"name": [{"text": "Jane Doe"}]},
+])
+def test_other_identifiers_and_names_still_stop(tmp_path, patient):
+    src = source_config(tmp_path, PSEUDONYMS, "src-test")
+    found = screen([{"resourceType": "Patient", "id": "p1", **patient}], tmp_path, source=src)
+    assert "direct_identifiers" in properties(found), found
+    assert not rules_hit(found, "pseudonym")
+
+
+def test_pseudonyms_apply_to_their_resource_types_only(tmp_path):
+    src = source_config(tmp_path, PSEUDONYMS, "src-test")
+    rp = {"resourceType": "RelatedPerson", "id": "r1",
+          "identifier": [{"system": "https://example.org/id/patient", "value": "P000123"}]}
+    assert "direct_identifiers" in properties(screen([rp], tmp_path, source=src))
+
+
+def test_source_extensions(tmp_path):
+    src = source_config(tmp_path, PSEUDONYMS, "src-test")
+    obs = {"resourceType": "Observation", "id": "o1",
+           "extension": [{"url": "https://example.org/StructureDefinition/priority", "valueString": "STAT"}]}
+    assert rules_hit(screen([obs], tmp_path), "review")
+    assert not rules_hit(screen([obs], tmp_path, source=src), "review")
+
+
+@pytest.mark.parametrize("text, message", [
+    (PSEUDONYMS, "not src-other"),
+    ("source_id: src-test\nunknown: 1\n", "unknown keys"),
+    ("pseudonyms: []\n", "source_id is required"),
+    ("source_id: src-test\npseudonyms:\n- resources: [Patient]\n  identifier_pattern: '[0-9'\n"
+     "  identifier_system: https://x\n", "invalid pattern"),
+    ("source_id: src-test\npseudonyms:\n- resources: [Patient]\n  identifier_pattern: '[0-9]+'\n",
+     "go together"),
+    ("source_id: src-test\npseudonyms:\n- resources: [Patient]\n", "give identifier_system"),
+    ("source_id: src-test\npseudonyms:\n- resources: [Patients]\n  name_pattern: x\n", "not R4"),
+    ("source_id: src-test\nextensions:\n  http://hl7.org/fhir/StructureDefinition/patient-birthPlace: ok\n",
+     "cannot change"),
+    ("source_id: src-test\nextensions:\n  https://example.org/x: allow\n", "action must be"),
+])
+def test_invalid_source_configs(tmp_path, text, message):
+    with pytest.raises(SourceConfigError, match=message):
+        source_config(tmp_path, text, "src-other" if message == "not src-other" else "src-test")
+
+
+@pytest.mark.skipif(not SOURCES.exists(), reason="source configs not mounted")
+def test_repository_source_configs_load():
+    configs = sorted(SOURCES.glob("*/fhir_screen.yaml"))
+    assert configs
+    for p in configs:
+        assert load_source(str(p), load_rules(), p.parent.name).id == p.parent.name
 
 
 def test_pattern_in_free_text(tmp_path):

@@ -1,0 +1,17 @@
+# ARPA-H RAPID FDNA mock package (synthetic). IDs use a global case index; see the
+# package's docs/README.md, "IDs and references".
+source_id: src-fdna-mock
+pseudonyms:
+- resources: [Patient]
+  identifier_system: https://example.invalid/fdna-demo/identifier/patient
+  identifier_pattern: 'patient-[0-9]{4}'
+- resources: [RelatedPerson]
+  note: The parent person's identifier.
+  identifier_system: https://example.invalid/fdna-demo/identifier/person
+  identifier_pattern: 'parent-[0-9]{4}'
+- resources: [Practitioner]
+  identifier_system: https://example.invalid/fdna-demo/identifier/practitioner
+  identifier_pattern: 'practitioner-[0-9]{4}'
+  name_pattern: 'Practitioner [0-9]{4}'
+- resources: [Organization]
+  name_pattern: '(Clinic|Organization) [0-9]{4}'

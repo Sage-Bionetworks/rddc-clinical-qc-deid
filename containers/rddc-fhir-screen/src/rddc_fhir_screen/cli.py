@@ -1,7 +1,8 @@
 """rddc-fhir-screen: screen FHIR files for identifiers, and merge per-file results.
 
   rddc-fhir-screen file FILE --file-id URN --name NAME [--provider-policy stop|review]
-                        [--rules RULES] --findings OUT.tsv --result OUT.json
+                        [--rules RULES] [--source-rules FILE --source-id ID]
+                        --findings OUT.tsv --result OUT.json
   rddc-fhir-screen report RESULT.json... --findings FINDINGS.tsv... --out-dir DIR
 
 `file` writes the findings of one file (TSV, no values) and its result: the data
@@ -20,6 +21,7 @@ from . import __version__
 from .qc import validate
 from rddc_screen_common.qc import check_file
 from .screen import CHECKED, Screen, load_rules, properties
+from .source import load_source
 
 FINDING_FIELDS = ["file_id", "file", "resource_type", "path", "rule", "detector", "action", "count", "first_record"]
 
@@ -30,14 +32,15 @@ def cmd_qc(a):
 
 def cmd_file(a):
     rules = load_rules(a.rules)
-    records, found, first = Screen(rules, a.provider_policy).file(a.path)
+    source = load_source(a.source_rules, rules, a.source_id) if a.source_rules else None
+    records, found, first = Screen(rules, a.provider_policy, source).file(a.path)
     with open(a.findings, "w", newline="") as fh:
         w = csv.writer(fh, delimiter="\t", lineterminator="\n")
         for k in sorted(found, key=lambda k: (k.action != "stop", k.resource_type, k.path, k.rule, k.detector)):
             w.writerow([a.file_id, a.name, k.resource_type, k.path, k.rule, k.detector, k.action, found[k], first[k]])
     result = {"file": a.file_id, "name": a.name, "records": records, "properties": properties(found),
               "checked": CHECKED, "rulesVersion": rules.get("version"), "screenVersion": __version__,
-              "providerPolicy": a.provider_policy}
+              "providerPolicy": a.provider_policy, "sourceConfig": source.id if source else None}
     with open(a.result, "w") as fh:
         json.dump(result, fh, indent=2)
         fh.write("\n")
@@ -83,6 +86,8 @@ def main(argv=None):
     f.add_argument("--provider-policy", choices=["stop", "review"], default="stop",
                    help="clinician and site identity: a direct identifier (stop) or a finding for review")
     f.add_argument("--rules", help="rules YAML (default: the packaged rules)")
+    f.add_argument("--source-rules", help="the source's config (fhir_screen.yaml): confirmed pseudonyms and extensions")
+    f.add_argument("--source-id", help="the batch's sourceId; the source config must name it")
     f.add_argument("--findings", required=True)
     f.add_argument("--result", required=True)
     f.set_defaults(fn=cmd_file)

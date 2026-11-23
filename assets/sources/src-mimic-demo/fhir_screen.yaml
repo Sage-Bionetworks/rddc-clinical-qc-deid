@@ -1,0 +1,11 @@
+# MIMIC-IV Clinical Database Demo on FHIR 2.1.0 (PhysioNet, de-identified).
+source_id: src-mimic-demo
+pseudonyms:
+- resources: [Patient]
+  note: MIMIC subject_id in place of the MRN; the name is Patient_<subject_id>.
+  identifier_system: http://mimic.mit.edu/fhir/mimic/identifier/patient
+  identifier_pattern: '[0-9]{8}'
+  name_pattern: 'Patient_[0-9]{8}'
+extensions:
+  # Lab order priority: STAT or ROUTINE.
+  http://mimic.mit.edu/fhir/mimic/StructureDefinition/lab-priority: ok
