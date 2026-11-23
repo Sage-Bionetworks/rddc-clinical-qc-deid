@@ -74,7 +74,15 @@ In the table below, `stop` flags a direct identifier. “Provider policy” uses
 | Attachments: DocumentReference content, `DiagnosticReport.presentedForm`, `Media.content`, `Binary.data`, Communication payloads, QuestionnaireResponse answers and extensions | `review` |
 
 Pattern checks skip fields listed in `patterns.skip_keys`, such as codes, systems and
-reference URLs. Reference display text is handled by the reference checks above.
+reference URLs, and elements whose R4 type is `canonical`, such as `meta.profile` and
+`QuestionnaireResponse.questionnaire`. A canonical names a definition, not a person.
+Reference display text is handled by the reference checks above.
+
+Definition resources are not screened: conformance and terminology resources, such as
+StructureDefinition, ImplementationGuide, CodeSystem and ValueSet, and Questionnaire. They
+describe data rather than hold it. `findings.tsv` counts them under rule
+`definition_resource` with action `skipped`, and they do not affect the verdict. The full
+list is `skip_resources` in the rules.
 
 ## Limits
 

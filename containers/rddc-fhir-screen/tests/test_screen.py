@@ -5,8 +5,7 @@ import re
 from pathlib import Path
 
 import pytest
-from fhirpathpy.models import models
-
+from rddc_fhir_screen import r4
 from rddc_fhir_screen.screen import Screen, load_rules, properties, reference_type, root_type
 
 FIXTURES = Path(os.environ.get("RDDC_FIXTURES", Path(__file__).resolve().parents[3] / "tests" / "screen_fhir"))
@@ -23,29 +22,12 @@ def rules_hit(found, action):
     return {(k.resource_type, k.path, k.rule) for k in found if k.action == action}
 
 
-R4 = models["r4"]
-RESOURCES = {t for t, parent in R4["type2Parent"].items() if parent in ("DomainResource", "Resource")}
-# Concrete names of choice elements (Observation.valueString), which FHIRPath writes as
-# value.ofType(string). The model lists them as paths too.
-CHOICE_NAMES = {f"{path}{t[0].upper()}{t[1:]}" for path, types in R4["choiceTypePaths"].items() for t in types}
-
-
 def r4_child(owner, name):
-    """What `name` under `owner` (a type, or the path of a backbone element) is in R4:
-    ("type", T), ("backbone", path), ("choice", [types]) or None."""
-    p2t, choice, elsewhere = R4["path2Type"], R4["choiceTypePaths"], R4["pathsDefinedElsewhere"]
-    while owner:
-        key = elsewhere.get(f"{owner}.{name}", f"{owner}.{name}")
-        if key in CHOICE_NAMES:
-            return None
-        if key in p2t:
-            return "type", p2t[key]
-        if key in choice:
-            return "choice", choice[key]
-        if any(k.startswith(key + ".") for k in p2t):
-            return "backbone", key
-        owner = R4["type2Parent"].get(owner)  # inherited (Patient.text from DomainResource)
-    return None
+    """r4.child, but a concrete choice name (valueString) is not an element in FHIRPath."""
+    found = r4.child(owner, name)
+    if found and found[0] == "type" and f"{owner}.{name}" in r4.CHOICE_NAMES:
+        return None
+    return found
 
 
 def r4_valid(expr, root):
@@ -79,7 +61,7 @@ def test_rule_expressions_exist_in_r4():
     bad = []
     for rule in load_rules()["elements"]:
         for expr in rule["paths"]:
-            roots = [root_type(expr)] if root_type(expr) else sorted(RESOURCES)
+            roots = [root_type(expr)] if root_type(expr) else sorted(r4.RESOURCES)
             if not any(r4_valid(expr, r) for r in roots):
                 bad.append(f"{rule['id']}: {expr}")
     assert not bad, bad
@@ -164,6 +146,47 @@ def test_attachments_reviewed(tmp_path):
     assert ("QuestionnaireResponse", "repeat(item).answer.value.ofType(Attachment)", "attachments") in review
     assert ("Communication", "payload.content.ofType(Attachment)", "attachments") in review
     assert ("Observation", "extension", "extension:unknown") in review
+
+
+def test_canonical_urls_are_not_identifiers(tmp_path):
+    qr = {"resourceType": "QuestionnaireResponse", "id": "q1", "status": "completed",
+          "questionnaire": "https://forms.example.org/Questionnaire/intake|1.0"}
+    plan = {"resourceType": "CarePlan", "id": "c1", "instantiatesCanonical": ["https://example.org/PlanDefinition/x"]}
+    found = screen([qr, plan], tmp_path)
+    assert not [k for k in found if k.rule == "pattern"], found
+    # URLs in other values are still checked, and attachment URLs are reported for review.
+    doc = {"resourceType": "DocumentReference", "id": "d1",
+           "content": [{"attachment": {"url": "https://ehr.example.org/docs/12345.pdf"}}]}
+    obs = {"resourceType": "Observation", "id": "o1", "valueString": "see https://ehr.example.org/p/1"}
+    found = screen([doc, obs], tmp_path)
+    assert ("Observation", "valueString", "pattern") in rules_hit(found, "stop")
+    assert ("DocumentReference", "content.attachment.url", "attachments") in rules_hit(found, "review")
+
+
+def test_definition_resources_are_skipped(tmp_path):
+    sd = {"resourceType": "StructureDefinition", "id": "s1", "url": "https://example.org/sd",
+          "contact": [{"telecom": [{"system": "email", "value": "author@example.org"}]}],
+          "date": "2026-01-01"}
+    vs = {"resourceType": "ValueSet", "id": "v1", "copyright": "See https://example.org/terms"}
+    found = screen([sd, vs, sd], tmp_path)
+    assert properties(found) == []
+    assert {(k.resource_type, k.rule, k.action, n) for k, n in found.items()} == {
+        ("StructureDefinition", "definition_resource", "skipped", 2), ("ValueSet", "definition_resource", "skipped", 1)}
+    # A contained definition is skipped; the resource that contains it is screened.
+    qr = {"resourceType": "QuestionnaireResponse", "id": "q1", "status": "completed",
+          "contained": [{"resourceType": "Questionnaire", "id": "q", "status": "active",
+                         "contact": [{"telecom": [{"system": "email", "value": "author@example.org"}]}]}],
+          "author": {"reference": "Patient/p1", "display": "Jane Doe"}}
+    found = screen([qr], tmp_path)
+    assert ("Questionnaire", "", "definition_resource") in rules_hit(found, "skipped")
+    assert ("QuestionnaireResponse", "author.display", "reference_display") in rules_hit(found, "stop")
+
+
+def test_skip_settings_name_r4_types():
+    rules = load_rules()
+    assert set(rules["skip_resources"]) <= r4.RESOURCES
+    assert r4.element_type("StructureDefinition", ("differential", "element", "type", "targetProfile")) == "canonical"
+    assert r4.element_type("Media", ("content", "url")) == "url"
 
 
 def test_pattern_in_free_text(tmp_path):

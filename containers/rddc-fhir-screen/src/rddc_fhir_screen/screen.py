@@ -27,6 +27,8 @@ from fhirpathpy.parser.generated.FHIRPathParser import FHIRPathParser
 
 from rddc_screen_common import detectors
 
+from .r4 import element_type
+
 PROPERTY = {"stop": "direct_identifiers", "dates": "dates", "zip_codes": "zip_codes", "free_text": "free_text"}
 # The properties this screen is authoritative for. The orchestrator replaces a file's
 # predicted values of these with the screen's report.
@@ -182,6 +184,8 @@ class Screen:
         self.elements = [Element(r, expr) for r in rules.get("elements", []) for expr in r["paths"]]
         pat = rules.get("patterns", {})
         self.skip_keys = set(pat.get("skip_keys", []))
+        self.skip_types = set(pat.get("skip_types", []))
+        self.skip_resources = set(rules.get("skip_resources", []))
         self.url_hosts = tuple(pat.get("url_hosts", []))
         self.pattern_action = pat.get("action", "stop")
         self.date_skip = set(rules.get("dates", {}).get("skip_under", []))
@@ -199,6 +203,11 @@ class Screen:
             found[k] += 1
             first.setdefault(k, n)
 
+        if rt in self.skip_resources:
+            # Definitions (profiles, code systems, forms) describe data and hold none.
+            add((), "definition_resource", "", "skipped")
+            return
+
         for el in self.elements:
             if el.resource_type in (None, rt) and el.matches(res):
                 add((el.path,), el.rule["id"], "", el.rule["action"])
@@ -212,7 +221,8 @@ class Screen:
                 continue
             if detectors.is_full_date(value) and not (set(path) & self.date_skip):
                 add(path, "dates", "", self.rules.get("dates", {}).get("action", "dates"))
-            if key not in self.skip_keys and not (key == "display" and "reference" in parent):
+            if (key not in self.skip_keys and not (key == "display" and "reference" in parent)
+                    and element_type(rt, path) not in self.skip_types):
                 for d in detectors.scan(value, self.url_hosts):
                     add(path, "pattern", d, self.pattern_action)
         rd = self.rules.get("reference_display", {})

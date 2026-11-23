@@ -19,6 +19,15 @@
 # The checks below `elements` apply to every value in a resource and are not FHIRPath.
 version: 0.1.0
 
+# Resources of these types are not screened: definitions (R4 conformance and terminology
+# resources, and Questionnaire) describe data and hold none. findings.tsv counts them under
+# rule definition_resource, action skipped. Publisher contact details in them are not
+# reported.
+skip_resources: [CapabilityStatement, StructureDefinition, ImplementationGuide, SearchParameter,
+                 MessageDefinition, OperationDefinition, CompartmentDefinition, StructureMap,
+                 GraphDefinition, ExampleScenario, CodeSystem, ValueSet, ConceptMap, NamingSystem,
+                 TerminologyCapabilities, Questionnaire]
+
 elements:
 - id: patient_direct
   action: stop
@@ -141,10 +150,13 @@ dates:
   skip_under: [meta]
 
 # Pattern detectors run on every string value, except under these keys (codes, systems and
-# URLs, which are not free values).
+# URLs, which are not free values) and on elements of these R4 types. A canonical is the
+# URL of a definition (a profile, value set or questionnaire), not an identifier. URLs in
+# other values are still checked; attachment URLs are reported by the attachments rule.
 patterns:
   action: stop
   skip_keys: [system, url, profile, reference, fullUrl, code, version, resourceType]
+  skip_types: [canonical]
   # URLs to these hosts are not identifiers.
   url_hosts: [www.w3.org, hl7.org, terminology.hl7.org, loinc.org, snomed.info, unitsofmeasure.org,
               www.nlm.nih.gov, github.com/synthetichealth]

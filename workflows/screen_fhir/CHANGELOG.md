@@ -20,3 +20,7 @@ Release tags use `screen_fhir/v<version>`.
   model in tests and parsed strictly at load, so a misspelt rule fails instead of matching
   nothing. Attachments in Media, Communication, QuestionnaireResponse answers and
   extensions are now reported for review.
+- Do not run pattern checks on canonical elements, which name definitions, such as
+  `QuestionnaireResponse.questionnaire` and profile references.
+- Skip definition resources (conformance and terminology resources, and Questionnaire).
+  `findings.tsv` counts them as `skipped` under rule `definition_resource`.
