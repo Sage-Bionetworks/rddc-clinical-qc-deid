@@ -64,17 +64,19 @@ def resources_in(path):
             yield i, json.loads(line)
 
 
-def leaves(node, path=()):
-    """(path of keys, parent dict, key, value) for every scalar; arrays are walked through."""
+def leaves(node, path=(), parent=None, key=None):
+    """(path of keys, parent dict, key, value) for every scalar; arrays are walked through.
+
+    A scalar inside an array (Address.line, HumanName.given) is reported with the key and
+    dict that hold the array."""
     if isinstance(node, dict):
         for k, v in node.items():
-            if isinstance(v, (dict, list)):
-                yield from leaves(v, path + (k,))
-            else:
-                yield path + (k,), node, k, v
+            yield from leaves(v, path + (k,), node, k)
     elif isinstance(node, list):
         for v in node:
-            yield from leaves(v, path)
+            yield from leaves(v, path, parent, key)
+    elif path:
+        yield path, parent, key, node
 
 
 def dicts(node, path=()):

@@ -51,6 +51,18 @@ def test_reference_display(tmp_path):
     assert ("Encounter", "participant.individual.display", "reference_display") in review
 
 
+def test_strings_in_arrays_are_screened(tmp_path):
+    # Address.line and HumanName.given are arrays of strings, with no other field beside them.
+    patient = {"resourceType": "Patient", "id": "p1", "address": [{"line": ["1 Main St"]}]}
+    assert ("Patient", "address.line", "patient_direct") in rules_hit(screen([patient], tmp_path), "stop")
+    patient = {"resourceType": "Patient", "id": "p1", "name": [{"given": ["Jane"]}]}
+    assert ("Patient", "name", "patient_direct") in rules_hit(screen([patient], tmp_path), "stop")
+    enc = {"resourceType": "Encounter", "id": "e1", "location": [{"x": {"line": ["call 555-123-4567"]}}]}
+    found = screen([enc], tmp_path)
+    assert ("Encounter", "location.x.line", "pattern") in rules_hit(found, "stop")
+    assert {k.detector for k in found if k.rule == "pattern"} == {"phone"}
+
+
 def test_pattern_in_free_text(tmp_path):
     obs = {"resourceType": "Observation", "id": "o1", "valueString": "patient called from 555-123-4567"}
     found = screen([obs], tmp_path)
